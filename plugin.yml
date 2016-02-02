@@ -1,0 +1,7 @@
+name: sKeeland
+author: Keeland
+description: Skript Addon for Skript
+version: 0.5
+main: me.keeland.keelansk.Main
+depend: [Skript]
+softdepend: [Towny, GriefPrevention, TerrainControl, uSkyBlock, ASkyBlock]

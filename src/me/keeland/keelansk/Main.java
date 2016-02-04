@@ -6,7 +6,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.WorldBorder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -14,6 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
+
 import com.wasteofplastic.askyblock.events.ChallengeCompleteEvent;
 import com.wasteofplastic.askyblock.events.ChallengeLevelCompleteEvent;
 import com.wasteofplastic.askyblock.events.IslandEnterEvent;
@@ -44,6 +44,7 @@ import me.keeland.keelansk.askyblock.ExprTeamMembersFromPlayer;
 import me.keeland.keelansk.griefprevention.ExprClaimAtLocation;
 import me.keeland.keelansk.griefprevention.ExprClaimAtPlayer;
 import me.keeland.keelansk.griefprevention.ExprOwnerOfClaim;
+import me.keeland.keelansk.griefprevention.ExprRemainingClaimBlocks;
 import me.keeland.keelansk.misc.EffFakeMaxPlayers;
 import me.keeland.keelansk.misc.EffOpenBrewingStand;
 import me.keeland.keelansk.misc.EffReloadServer;
@@ -83,7 +84,6 @@ import me.keeland.keelansk.misc.ExprTotalMemory;
 import me.keeland.keelansk.misc.ExprUptime;
 import me.keeland.keelansk.misc.ExprViewDistance;
 import me.keeland.keelansk.misc.ExprWaterAnimalSpawnLimit;
-import me.keeland.keelansk.terraincontrol.ExprBiomeAtLocation;
 import me.keeland.keelansk.towny.EffAddBonusBlocksToTown;
 import me.keeland.keelansk.towny.EffAddResidentToTown;
 import me.keeland.keelansk.towny.EffBackupTownyData;
@@ -126,16 +126,9 @@ import me.keeland.keelansk.uskyblock.ExprIslandRankAtLocation;
 import me.keeland.keelansk.uskyblock.ExprIslandRankOfPlayer;
 import me.keeland.keelansk.utils.Timer;
 import me.keeland.keelansk.utils.User;
-import me.keeland.keelansk.worldborder.EffSetCenterWB;
-import me.keeland.keelansk.worldborder.EffSetWorldBorder;
-import me.keeland.keelansk.worldborder.ExprBorderOfWorld;
-import me.keeland.keelansk.worldborder.ExprDamageAmountWB;
-import me.keeland.keelansk.worldborder.ExprDamageBufferWB;
-import me.keeland.keelansk.worldborder.ExprWBWarningDistance;
-import me.keeland.keelansk.worldborder.ExprWBWarningTime;
-import me.keeland.keelansk.worldborder.ExprWorldBorder;
 
 import me.ryanhamshire.GriefPrevention.Claim;
+
 import us.talabrek.ultimateskyblock.api.event.uSkyBlockScoreChangedEvent;
 
 public class Main extends JavaPlugin implements Listener{
@@ -160,12 +153,7 @@ public class Main extends JavaPlugin implements Listener{
 			 * Register independent classes
 			 */
 			Bukkit.getLogger().info("sKeeland > Enabled, registering independent expressions...");
-			Skript.registerEffect(EffSetWorldBorder.class, new String[] { "set [world[ ]]border of [world] %string% to %number% [blocks] over %number% seconds" });
-			Skript.registerEffect(EffSetCenterWB.class, new String[] { "set center of %border% to %location%" });
-			effAmount += 2;
-			/**
-			 * I think i fixed it? eh, ill find out soon anyway
-			 */
+			effAmount += 0;
 			Skript.registerEffect(EffStopServer.class, new String[] { "stop server" });
 			Skript.registerEffect(EffRunGarbageCollector.class, new String[] { "run garbage collector" });
 			Skript.registerEffect(EffOpenBrewingStand.class, new String[] { "open brewing inventory (for|to) %player%" } );
@@ -206,17 +194,7 @@ public class Main extends JavaPlugin implements Listener{
 			Skript.registerExpression(ExprUptime.class, String.class, ExpressionType.SIMPLE, "[server] up[(-| )]time");
 			Skript.registerExpression(ExprViewDistance.class, Integer.class, ExpressionType.SIMPLE, "view distance");
 			Skript.registerExpression(ExprWaterAnimalSpawnLimit.class, Integer.class, ExpressionType.SIMPLE, "water animal spawn[s] limit");
-			/**
-			 * Worldborder Stuffs
-			 * Effects are above
-			 */
-			Skript.registerExpression(ExprBorderOfWorld.class, WorldBorder.class, ExpressionType.PROPERTY, "border of %world%");
-			Skript.registerExpression(ExprWorldBorder.class, Double.class, ExpressionType.PROPERTY, "[world[ ]]border [size] of [world] %string%");
-			Skript.registerExpression(ExprWBWarningDistance.class, Integer.class, ExpressionType.PROPERTY, "border warning distance of [world] %string%");
-			Skript.registerExpression(ExprWBWarningTime.class, Integer.class, ExpressionType.PROPERTY, "border warning time of [world] %string%");
-			Skript.registerExpression(ExprDamageBufferWB.class, Double.class, ExpressionType.PROPERTY, "border damage buffer of [world] %string%");
-			Skript.registerExpression(ExprDamageAmountWB.class, Double.class, ExpressionType.PROPERTY, "border damage amount of [world] %string%");
-			exprAmount += 38;
+			exprAmount += 32;
 			
 			if (Bukkit.getServer().getPluginManager().getPlugin("GriefPrevention") != null) {
 				Bukkit.getLogger().info("sKeeland > GriefPrevention found, registering related expressions...");
@@ -226,22 +204,11 @@ public class Main extends JavaPlugin implements Listener{
 				Skript.registerExpression(ExprClaimAtPlayer.class, Claim.class, ExpressionType.PROPERTY, "claim at player %player%");
 				Skript.registerExpression(ExprClaimAtLocation.class, Claim.class, ExpressionType.PROPERTY, "claim at %location%");
 				Skript.registerExpression(ExprOwnerOfClaim.class, String.class, ExpressionType.PROPERTY, "owner of [claim] %claim%");
-				exprAmount += 3;
+				Skript.registerExpression(ExprRemainingClaimBlocks.class, Integer.class, ExpressionType.PROPERTY, "remaining [claim] block[[']s] of [player] %player%");
+				exprAmount += 4;
 				
 			} else {
 				getLogger().info("sKeeland > Unable to find GriefPrevention!");
-			}
-			
-			if (Bukkit.getServer().getPluginManager().getPlugin("TerrainControl") != null) {
-				Bukkit.getLogger().info("sKeeland > TerrainControl found, registering related expressions...");
-				/**
-				 * TERRAINCONTROL Expressions
-				 */
-				Skript.registerExpression(ExprBiomeAtLocation.class, String.class, ExpressionType.PROPERTY, "(tc|terrain[ ]control) biome at %location%");
-				exprAmount += 1;
-				
-			} else {
-				getLogger().info("sKeeland > Unable to find TerrainControl!");
 			}
 			
 		    if (Bukkit.getServer().getPluginManager().getPlugin("Towny") != null) {
@@ -536,7 +503,7 @@ public class Main extends JavaPlugin implements Listener{
 	    
 	}
 	
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // need to fix xddddddddddddddddddddddddddddd or acc use
 	private void utils() {
         timer = new Timer();
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, timer, 1000L, 50L);

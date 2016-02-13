@@ -8,12 +8,13 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
-
+import com.wasteofplastic.askyblock.ASkyBlockAPI;
 import com.wasteofplastic.askyblock.events.ChallengeCompleteEvent;
 import com.wasteofplastic.askyblock.events.ChallengeLevelCompleteEvent;
 import com.wasteofplastic.askyblock.events.IslandEnterEvent;
@@ -121,15 +122,10 @@ import me.keeland.keelansk.towny.ExprTownAtLocation;
 import me.keeland.keelansk.towny.ExprTownsInNation;
 import me.keeland.keelansk.towny.ExprTownsInNationCount;
 import me.keeland.keelansk.towny.ExprWarTime;
-import me.keeland.keelansk.uskyblock.ExprGetIslandLevel;
-import me.keeland.keelansk.uskyblock.ExprIslandRankAtLocation;
-import me.keeland.keelansk.uskyblock.ExprIslandRankOfPlayer;
 import me.keeland.keelansk.utils.Timer;
 import me.keeland.keelansk.utils.User;
 
 import me.ryanhamshire.GriefPrevention.Claim;
-
-import us.talabrek.ultimateskyblock.api.event.uSkyBlockScoreChangedEvent;
 
 public class Main extends JavaPlugin implements Listener{
 	
@@ -458,35 +454,7 @@ public class Main extends JavaPlugin implements Listener{
 		    } else {
 		    	getLogger().info("sKeeland > Unable to find ASkyBlock!");
 		    }
-		    
-			if (Bukkit.getServer().getPluginManager().getPlugin("uSkyBlock") != null) {
-				Bukkit.getLogger().info("sKeeland > uSkyBlock found, registering related expressions...");
-				/**
-				 * uSkyBlock Expressions
-				 */
-				Skript.registerEvent("uskyblock score changed event", SimpleEvent.class, uSkyBlockScoreChangedEvent.class, "[uskyblock] score chang[(e|ing|ed)] [event]");
-				EventValues.registerEventValue(uSkyBlockScoreChangedEvent.class, Player.class, new Getter <Player, uSkyBlockScoreChangedEvent>() {
-		    		
-		    		public Player get(uSkyBlockScoreChangedEvent e) {
-		    			return e.getPlayer();
-		    		}
-		    	}, 0);
-				EventValues.registerEventValue(uSkyBlockScoreChangedEvent.class, Double.class, new Getter <Double, uSkyBlockScoreChangedEvent>() {
-		    		
-		    		public Double get(uSkyBlockScoreChangedEvent e) {
-		    			return e.getScore().getScore();
-		    		}
-		    	}, 0);
-				evtAmount += 1;
-				Skript.registerExpression(ExprGetIslandLevel.class, Double.class, ExpressionType.PROPERTY, "[uskyblock] island level of %player%");
-				Skript.registerExpression(ExprIslandRankOfPlayer.class, String.class, ExpressionType.PROPERTY, "[uskyblock] island rank of %player%");
-				Skript.registerExpression(ExprIslandRankAtLocation.class, String.class, ExpressionType.PROPERTY, "[uskyblock] island rank at %location%");
-				exprAmount += 3;
 				
-			} else {
-				getLogger().info("sKeeland > Unable to find uSkyBlock!");
-				
-			}
 		    getLogger().info("Loaded a total of " + evtAmount + (evtAmount == 1 ? " event, " : " events, ")  + effAmount + (effAmount == 1 ? " effect and " : " effects and ") + exprAmount + (exprAmount == 1 ? " expression" : " expressions!"));
 		    
 		} else {
@@ -503,7 +471,7 @@ public class Main extends JavaPlugin implements Listener{
 	    
 	}
 	
-    @SuppressWarnings("unused") // need to fix xddddddddddddddddddddddddddddd or acc use
+    @SuppressWarnings("unused") // need to fix xd or acc use
 	private void utils() {
         timer = new Timer();
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, timer, 1000L, 50L);
@@ -512,6 +480,16 @@ public class Main extends JavaPlugin implements Listener{
 	
     public static Main getInstance() {
         return plugin;
+    }
+    
+    public static ASkyBlockAPI hookASB() {
+    	Plugin plugin = Bukkit.getPluginManager().getPlugin("ASkyBlock");
+        if (plugin instanceof ASkyBlockAPI && plugin.isEnabled()) { // I should probably stop doing this.
+        	ASkyBlockAPI asb = (ASkyBlockAPI) plugin;
+        	return asb;
+        } else {
+        	return null;
+        }
     }
     
     public static Timer getTimer() {

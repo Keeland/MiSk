@@ -12,8 +12,21 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.palmergames.bukkit.towny.event.DeleteNationEvent;
+import com.palmergames.bukkit.towny.event.DeleteTownEvent;
+import com.palmergames.bukkit.towny.event.MobRemovalEvent;
+import com.palmergames.bukkit.towny.event.NationAddTownEvent;
+import com.palmergames.bukkit.towny.event.NationRemoveTownEvent;
+import com.palmergames.bukkit.towny.event.NewNationEvent;
+import com.palmergames.bukkit.towny.event.NewTownEvent;
+import com.palmergames.bukkit.towny.event.TownAddResidentEvent;
+import com.palmergames.bukkit.towny.event.TownClaimEvent;
+import com.palmergames.bukkit.towny.event.TownRemoveResidentEvent;
+import com.palmergames.bukkit.towny.event.TownUnclaimEvent;
+import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
+import com.palmergames.bukkit.towny.object.Town;
 import com.wasteofplastic.askyblock.ASkyBlockAPI;
 import com.wasteofplastic.askyblock.events.ChallengeCompleteEvent;
 import com.wasteofplastic.askyblock.events.ChallengeLevelCompleteEvent;
@@ -210,8 +223,140 @@ public class Main extends JavaPlugin implements Listener{
 		    if (Bukkit.getServer().getPluginManager().getPlugin("Towny") != null) {
 		    	Bukkit.getLogger().info("sKeeland > Towny found, registering related expressions...");
 		    	/**
-				 * TOWNY Expressions & Effects
+				 * TOWNY Events, Expressions & Effects
 				 */
+		    	Skript.registerEvent("Delete Nation Event", SimpleEvent.class, DeleteNationEvent.class, "nation del[ete[d]]"); //event-string
+		    	Skript.registerEvent("Delete Town Event", SimpleEvent.class, DeleteTownEvent.class, "town del[ete[d]]");
+		    	Skript.registerEvent("Towny Mob Removal Event", SimpleEvent.class, MobRemovalEvent.class, "[towny] mob rem[oval] [event]");
+		    	Skript.registerEvent("Nation Add Town Event", SimpleEvent.class, NationAddTownEvent.class, "[towny] nation add town [event]");
+		    	Skript.registerEvent("Nation Remove Town Event", SimpleEvent.class, NationRemoveTownEvent.class, "[towny] nation remove town [event]");
+		    	Skript.registerEvent("New Nation Event", SimpleEvent.class, NewNationEvent.class, "new nation [event]","nation new [event]","nation create","create nation [event]");
+		    	Skript.registerEvent("New Town Event", SimpleEvent.class, NewTownEvent.class, "new town [event]","town new [event]","town create","create town [event]");
+		    	Skript.registerEvent("Town Add Resident Event", SimpleEvent.class, TownAddResidentEvent.class, "town add (resident|player) [event]");
+		    	Skript.registerEvent("Town Remove Resident Event", SimpleEvent.class, TownRemoveResidentEvent.class, "town remove (resident|player) [event]");
+		    	Skript.registerEvent("Town Claim Event", SimpleEvent.class, TownClaimEvent.class, "town claim [event]");
+		    	Skript.registerEvent("Town UnClaim Event", SimpleEvent.class, TownUnclaimEvent.class, "town unclaim [event]");
+		    	// event-string return deleted nation name
+		    	EventValues.registerEventValue(DeleteNationEvent.class, String.class, new Getter<String, DeleteNationEvent>() {
+					
+					public String get(DeleteNationEvent e) {
+						
+						return e.getNationName();
+					}
+				}, 0);
+		    	// event-string return deleted town name
+		    	EventValues.registerEventValue(DeleteTownEvent.class, String.class, new Getter<String, DeleteTownEvent>() {
+					
+					public String get(DeleteTownEvent e) {
+						
+						return e.getTownName();
+					}
+				}, 0);
+		    	// nation add town event. event-nation?
+		    	EventValues.registerEventValue(NationAddTownEvent.class, Nation.class, new Getter<Nation, NationAddTownEvent>() {
+					
+					public Nation get(NationAddTownEvent e) {
+						
+						return e.getNation();
+					}
+				}, 0);
+		    	// nation add town event. event-town?
+		    	EventValues.registerEventValue(NationAddTownEvent.class, Town.class, new Getter<Town, NationAddTownEvent>() {
+					
+					public Town get(NationAddTownEvent e) {
+						
+						return e.getTown();
+					}
+				}, 0);
+		    	// nation remove town event. event-nation?
+		    	EventValues.registerEventValue(NationRemoveTownEvent.class, Nation.class, new Getter<Nation, NationRemoveTownEvent>() {
+					
+					public Nation get(NationRemoveTownEvent e) {
+						
+						return e.getNation();
+					}
+				}, 0);
+		    	// nation remove town event. event-town?
+		    	EventValues.registerEventValue(NationRemoveTownEvent.class, Town.class, new Getter<Town, NationRemoveTownEvent>() {
+					
+					public Town get(NationRemoveTownEvent e) {
+						
+						return e.getTown();
+					}
+				}, 0);
+		    	// new nation event event-string?
+		    	EventValues.registerEventValue(NewNationEvent.class, Nation.class, new Getter<Nation, NewNationEvent>() {
+					
+					public Nation get(NewNationEvent e) {
+						
+						return e.getNation();
+					}
+				}, 0);
+		    	// new town event event-string?
+		    	EventValues.registerEventValue(NewTownEvent.class, Town.class, new Getter<Town, NewTownEvent>() {
+					
+					public Town get(NewTownEvent e) {
+						
+						return e.getTown();
+					}
+				}, 0);
+		    	// town add resident event event-resident?
+		    	EventValues.registerEventValue(TownAddResidentEvent.class, Resident.class, new Getter<Resident, TownAddResidentEvent>() {
+					
+					public Resident get(TownAddResidentEvent e) {
+						
+						return e.getResident();
+					}
+				}, 0);
+		    	// town add resident event event-town?
+		    	EventValues.registerEventValue(TownAddResidentEvent.class, Town.class, new Getter<Town, TownAddResidentEvent>() {
+					
+					public Town get(TownAddResidentEvent e) {
+						
+						return e.getTown();
+					}
+				}, 0);
+		    	// town remove resident event event-resident?
+		    	EventValues.registerEventValue(TownRemoveResidentEvent.class, Resident.class, new Getter<Resident, TownRemoveResidentEvent>() {
+					
+					public Resident get(TownRemoveResidentEvent e) {
+						
+						return e.getResident();
+					}
+				}, 0);
+		    	// town remove resident event event-town?
+		    	EventValues.registerEventValue(TownRemoveResidentEvent.class, Town.class, new Getter<Town, TownRemoveResidentEvent>() {
+					
+					public Town get(TownRemoveResidentEvent e) {
+						
+						return e.getTown();
+					}
+				}, 0);
+		    	/***
+		    	 * Claim Event Values
+		    	 */
+		    	//event-town? on claim
+		    	EventValues.registerEventValue(TownClaimEvent.class, Town.class, new Getter<Town, TownClaimEvent>() {
+					
+					public Town get(TownClaimEvent e) {
+						
+						try {
+							return e.getTownBlock().getTown();
+						} catch (NotRegisteredException e1) {
+							e1.printStackTrace();
+							return null;
+						}
+					}
+				}, 0);
+		    	//event-town? on unclaim
+		    	EventValues.registerEventValue(TownUnclaimEvent.class, Town.class, new Getter<Town, TownUnclaimEvent>() {
+					
+					public Town get(TownUnclaimEvent e) {
+						
+						return e.getTown();
+						
+					}
+				}, 0);
 		    	Skript.registerEffect(EffBackupTownyData.class, new String[] { "backup towny [data]" });
 		    	Skript.registerEffect(EffEndWarEvent.class, new String[] { "end war[[ ]event]" });
 		    	Skript.registerEffect(EffStartWarEvent.class, new String[] { "start war[[ ]event]" });
@@ -231,7 +376,7 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerEffect(EffFireStateOfTown.class, new String[] { "set fire state of %town% to %boolean%" });
 		    	Skript.registerEffect(EffSetSetupDelayWar.class, new String[] { "set war [set[up]] delay to %integer%" });
 		    	Skript.registerEffect(EffSaveTownyData.class, new String[] { "save towny [data]" });
-		    	Skript.registerEffect(EffAddBonusBlocksToTown.class, new String[] { "add %number% bonus blocks to [town] %string%" });
+		    	Skript.registerEffect(EffAddBonusBlocksToTown.class, new String[] { "add %integer% bonus blocks to [town] %string%" });
 		    	Skript.registerEffect(EffSetBonusBlocksOfTown.class, new String[] { "set bonus blocks of %string% to %integer%" });
 		    	effAmount += 21;
 		    	Skript.registerExpression(ExprFireStateOfTown.class, Boolean.class, ExpressionType.PROPERTY, "fire state of [town] %town%");

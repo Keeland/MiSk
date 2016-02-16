@@ -128,6 +128,7 @@ import me.keeland.keelansk.towny.ExprNationOfTown;
 import me.keeland.keelansk.towny.ExprNationPlayerCount;
 import me.keeland.keelansk.towny.ExprNationPlayers;
 import me.keeland.keelansk.towny.ExprNationTaxes;
+import me.keeland.keelansk.towny.ExprNationTownCount;
 import me.keeland.keelansk.towny.ExprPublicStateOfTown;
 import me.keeland.keelansk.towny.ExprPvPStateOfTown;
 import me.keeland.keelansk.towny.ExprResidentsWithoutTown;
@@ -386,6 +387,7 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerExpression(ExprNationOfTown.class, Nation.class, ExpressionType.PROPERTY, "nation of %string%");
 		    	Skript.registerExpression(ExprNationBank.class, Double.class, ExpressionType.PROPERTY, "nation balance of %string%");
 		    	Skript.registerExpression(ExprNationPlayerCount.class, Integer.class, ExpressionType.PROPERTY, "nation player[ ]count of %string%");
+		    	Skript.registerExpression(ExprNationTownCount.class, Integer.class, ExpressionType.PROPERTY, "nation town[ ]count of %string%");
 		    	Skript.registerExpression(ExprNationPlayers.class, String.class, ExpressionType.PROPERTY, "player[[']s] of nation %string%, player[[']s] in nation %string%");
 		    	Skript.registerExpression(ExprNationTaxes.class, Double.class, ExpressionType.PROPERTY, "nation taxes of %string%");
 		    	Skript.registerExpression(ExprPublicStateOfTown.class, Boolean.class, ExpressionType.PROPERTY, "public state of [town] %town%");
@@ -395,7 +397,7 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerExpression(ExprTownsInNationCount.class, Integer.class, ExpressionType.PROPERTY, "[nation[ ]]town[ ]count of %string%");
 		    	Skript.registerExpression(ExprResidentsWithoutTown.class, String.class, ExpressionType.SIMPLE, "(resident[[']s]|player[[']s]) without [a] town");
 		    	Skript.registerExpression(ExprWarTime.class, Boolean.class, ExpressionType.SIMPLE, "war[ ]time");
-		    	exprAmount += 16;
+		    	exprAmount += 17;
 		    	
 			} else {
 				getLogger().info("sKeeland > Unable to find Towny!");

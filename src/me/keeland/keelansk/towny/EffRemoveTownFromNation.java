@@ -7,13 +7,13 @@ import ch.njol.util.Kleenean;
 
 import org.bukkit.event.Event;
 
-import com.palmergames.bukkit.towny.exceptions.AlreadyRegisteredException;
+import com.palmergames.bukkit.towny.exceptions.EmptyNationException;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownyUniverse;
 
-public class EffAddTownToNation extends Effect {
+public class EffRemoveTownFromNation extends Effect {
 	
     private Expression<Nation> nat;
     private Expression<String> to;
@@ -28,8 +28,10 @@ public class EffAddTownToNation extends Effect {
 		}
         if (t == null || nation == null) return;
         try {
-			nation.addTown(t);
-		} catch (AlreadyRegisteredException e) {
+			nation.removeTown(t);
+		} catch (NotRegisteredException e) {
+			e.printStackTrace();
+		} catch (EmptyNationException e) {
 			e.printStackTrace();
 		}
         return;

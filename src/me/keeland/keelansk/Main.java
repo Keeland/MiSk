@@ -113,6 +113,7 @@ import me.keeland.keelansk.towny.EffPvPStateOfTown;
 import me.keeland.keelansk.towny.EffRemoveNation;
 import me.keeland.keelansk.towny.EffRemoveResidentFromTown;
 import me.keeland.keelansk.towny.EffRemoveTown;
+import me.keeland.keelansk.towny.EffRemoveTownFromNation;
 import me.keeland.keelansk.towny.EffRenameNation;
 import me.keeland.keelansk.towny.EffRenameTown;
 import me.keeland.keelansk.towny.EffSaveTownyData;
@@ -372,6 +373,7 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerEffect(EffRemoveNation.class, new String[] { "(remove|rem) nation %nation%" });
 		    	Skript.registerEffect(EffRemoveTown.class, new String[] { "(remove|rem) town %town%" });
 		    	Skript.registerEffect(EffRemoveResidentFromTown.class, new String[] { "remove %string% from town %town%" });
+		    	Skript.registerEffect(EffRemoveTownFromNation.class, new String[] { "remove %string% from nation %nation%" });
 		    	Skript.registerEffect(EffPublicStateOfTown.class, new String[] { "set public state of %town% to %boolean%" });
 		    	Skript.registerEffect(EffPvPStateOfTown.class, new String[] { "set pvp state of %town% to %boolean%" });
 		    	Skript.registerEffect(EffFireStateOfTown.class, new String[] { "set fire state of %town% to %boolean%" });
@@ -379,7 +381,7 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerEffect(EffSaveTownyData.class, new String[] { "save towny [data]" });
 		    	Skript.registerEffect(EffAddBonusBlocksToTown.class, new String[] { "add %integer% bonus blocks to [town] %string%" });
 		    	Skript.registerEffect(EffSetBonusBlocksOfTown.class, new String[] { "set bonus blocks of %string% to %integer%" });
-		    	effAmount += 21;
+		    	effAmount += 22;
 		    	Skript.registerExpression(ExprFireStateOfTown.class, Boolean.class, ExpressionType.PROPERTY, "fire state of [town] %town%");
 		    	Skript.registerExpression(ExprMayorOfTown.class, Resident.class, ExpressionType.PROPERTY, "mayor of [town] %town%"); //set-table
 		    	Skript.registerExpression(ExprNationAtLocation.class, Nation.class, ExpressionType.PROPERTY, "nation at %location%");

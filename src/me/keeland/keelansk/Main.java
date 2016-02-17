@@ -138,7 +138,6 @@ import me.keeland.keelansk.towny.ExprTownsInNation;
 import me.keeland.keelansk.towny.ExprTownsInNationCount;
 import me.keeland.keelansk.towny.ExprWarTime;
 import me.keeland.keelansk.utils.Timer;
-import me.keeland.keelansk.utils.User;
 
 import me.ryanhamshire.GriefPrevention.Claim;
 
@@ -205,7 +204,7 @@ public class Main extends JavaPlugin implements Listener{
 			Skript.registerExpression(ExprUptime.class, String.class, ExpressionType.SIMPLE, "[server] up[(-| )]time");
 			Skript.registerExpression(ExprViewDistance.class, Integer.class, ExpressionType.SIMPLE, "view distance");
 			Skript.registerExpression(ExprWaterAnimalSpawnLimit.class, Integer.class, ExpressionType.SIMPLE, "water animal spawn[s] limit");
-			exprAmount += 32;
+			exprAmount += 30;
 			
 			if (Bukkit.getServer().getPluginManager().getPlugin("GriefPrevention") != null) {
 				Bukkit.getLogger().info("sKeeland > GriefPrevention found, registering related expressions...");
@@ -620,12 +619,6 @@ public class Main extends JavaPlugin implements Listener{
 	    
 	}
 	
-    @SuppressWarnings("unused") // need to fix xd or acc use
-	private void utils() {
-        timer = new Timer();
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, timer, 1000L, 50L);
-        for (Player p : Bukkit.getOnlinePlayers()) User.get(p);
-    }
 	
     public static Main getInstance() {
         return plugin;

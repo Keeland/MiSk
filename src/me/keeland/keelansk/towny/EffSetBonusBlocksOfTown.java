@@ -40,8 +40,8 @@ public class EffSetBonusBlocksOfTown extends Effect {
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
-        this.town = (Expression<String>) expressions[0];
-        this.i = (Expression<Integer>) expressions[1];
+        this.i = (Expression<Integer>) expressions[0];
+        this.town = (Expression<String>) expressions[1];
         return true;
     }
 }

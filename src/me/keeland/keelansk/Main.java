@@ -8,7 +8,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -27,7 +26,6 @@ import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
-import com.wasteofplastic.askyblock.ASkyBlockAPI;
 import com.wasteofplastic.askyblock.events.ChallengeCompleteEvent;
 import com.wasteofplastic.askyblock.events.ChallengeLevelCompleteEvent;
 import com.wasteofplastic.askyblock.events.IslandEnterEvent;
@@ -37,6 +35,8 @@ import com.wasteofplastic.askyblock.events.IslandLeaveEvent;
 import com.wasteofplastic.askyblock.events.IslandLevelEvent;
 import com.wasteofplastic.askyblock.events.IslandNewEvent;
 import com.wasteofplastic.askyblock.events.IslandResetEvent;
+import com.wimbli.WorldBorder.Events.WorldBorderFillFinishedEvent;
+import com.wimbli.WorldBorder.Events.WorldBorderTrimFinishedEvent;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.ExpressionType;
@@ -104,6 +104,8 @@ import me.keeland.keelansk.towny.EffBackupTownyData;
 import me.keeland.keelansk.towny.EffDeleteNation;
 import me.keeland.keelansk.towny.EffDeleteResident;
 import me.keeland.keelansk.towny.EffDeleteTown;
+import me.keeland.keelansk.towny.EffEliminateNation;
+import me.keeland.keelansk.towny.EffEliminateTown;
 import me.keeland.keelansk.towny.EffEndWarEvent;
 import me.keeland.keelansk.towny.EffFireStateOfTown;
 import me.keeland.keelansk.towny.EffNewNation;
@@ -358,6 +360,7 @@ public class Main extends JavaPlugin implements Listener{
 						
 					}
 				}, 0);
+		    	
 		    	Skript.registerEffect(EffBackupTownyData.class, new String[] { "backup towny [data]" });
 		    	Skript.registerEffect(EffEndWarEvent.class, new String[] { "end war[[ ]event]" });
 		    	Skript.registerEffect(EffStartWarEvent.class, new String[] { "start war[[ ]event]" });
@@ -365,6 +368,8 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerEffect(EffDeleteNation.class, new String[] { "(delete|del) nation %nation%" });
 		    	Skript.registerEffect(EffDeleteTown.class, new String[] { "(delete|del) town %town%" });
 		    	Skript.registerEffect(EffDeleteResident.class, new String[] { "(delete|del) (resident|player) %string%" });
+		    	Skript.registerEffect(EffEliminateTown.class, new String[] { "eliminate town %string% [from war]" });
+		    	Skript.registerEffect(EffEliminateNation.class, new String[] { "eliminate nation %string% [from war]" });
 		    	Skript.registerEffect(EffNewNation.class, new String[] { "new nation [named] %string%" });
 		    	Skript.registerEffect(EffNewTown.class, new String[] { "new town [named] %string%" });
 		    	Skript.registerEffect(EffRenameTown.class, new String[] { "[re]name town %town% to %string%" });
@@ -380,12 +385,12 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerEffect(EffSaveTownyData.class, new String[] { "save towny [data]" });
 		    	Skript.registerEffect(EffAddBonusBlocksToTown.class, new String[] { "add %integer% bonus blocks to [town] %string%" });
 		    	Skript.registerEffect(EffSetBonusBlocksOfTown.class, new String[] { "set bonus blocks of %string% to %integer%" });
-		    	effAmount += 22;
+		    	effAmount += 24;
 		    	Skript.registerExpression(ExprFireStateOfTown.class, Boolean.class, ExpressionType.PROPERTY, "fire state of [town] %town%");
 		    	Skript.registerExpression(ExprMayorOfTown.class, Resident.class, ExpressionType.PROPERTY, "mayor of [town] %town%"); //set-table
 		    	Skript.registerExpression(ExprNationAtLocation.class, Nation.class, ExpressionType.PROPERTY, "nation at %location%");
 		    	Skript.registerExpression(ExprNationOfPlayer.class, Nation.class, ExpressionType.PROPERTY, "nation of %player%");
-		    	Skript.registerExpression(ExprNationOfTown.class, Nation.class, ExpressionType.PROPERTY, "nation of %string%");
+		    	Skript.registerExpression(ExprNationOfTown.class, Nation.class, ExpressionType.PROPERTY, "nation of town %string%", "%string%[']s nation");
 		    	Skript.registerExpression(ExprNationBank.class, Double.class, ExpressionType.PROPERTY, "nation balance of %string%");
 		    	Skript.registerExpression(ExprNationPlayerCount.class, Integer.class, ExpressionType.PROPERTY, "nation player[ ]count of %string%");
 		    	Skript.registerExpression(ExprNationTownCount.class, Integer.class, ExpressionType.PROPERTY, "nation town[ ]count of %string%");
@@ -403,6 +408,18 @@ public class Main extends JavaPlugin implements Listener{
 			} else {
 				getLogger().info("sKeeland > Unable to find Towny!");
 			}
+		    
+		    if (Bukkit.getServer().getPluginManager().getPlugin("WorldBorder") != null) {
+		    	Bukkit.getLogger().info("sKeeland > WorldBorder found, registering related expressions...");
+		    	/**
+		    	 * Worldborder Expressions
+		    	 */
+		    	Skript.registerEvent("WorldBorder Fill Finish Event", SimpleEvent.class, WorldBorderFillFinishedEvent.class, "worldborder (fill|pregen) finish [event]");
+		    	Skript.registerEvent("WorldBorder Trim Finish Event", SimpleEvent.class, WorldBorderTrimFinishedEvent.class, "worldborder trim finish [event]");
+		    	
+		    } else {
+		    	getLogger().info("sKeeland > Unable to find WorldBorder!");
+		    }
 		    if (Bukkit.getServer().getPluginManager().getPlugin("ASkyBlock") != null) {
 		    	Bukkit.getLogger().info("sKeeland > ASkyBlock found, registering related expressions...");
 		    	/**
@@ -619,19 +636,8 @@ public class Main extends JavaPlugin implements Listener{
 	    
 	}
 	
-	
     public static Main getInstance() {
         return plugin;
-    }
-    
-    public static ASkyBlockAPI hookASB() {
-    	Plugin plugin = Bukkit.getPluginManager().getPlugin("ASkyBlock");
-        if (plugin instanceof ASkyBlockAPI && plugin.isEnabled()) { // I should probably stop doing this.
-        	ASkyBlockAPI asb = (ASkyBlockAPI) plugin;
-        	return asb;
-        } else {
-        	return null;
-        }
     }
     
     public static Timer getTimer() {

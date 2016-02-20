@@ -140,7 +140,10 @@ import me.keeland.keelansk.towny.ExprTownsInNation;
 import me.keeland.keelansk.towny.ExprTownsInNationCount;
 import me.keeland.keelansk.towny.ExprWarTime;
 import me.keeland.keelansk.utils.Timer;
-
+import me.keeland.keelansk.worldborderpl.ExprXCenterOfrBorder;
+import me.keeland.keelansk.worldborderpl.ExprXRadiusOfrBorder;
+import me.keeland.keelansk.worldborderpl.ExprZCenterOfrBorder;
+import me.keeland.keelansk.worldborderpl.ExprZRadiusOfrBorder;
 import me.ryanhamshire.GriefPrevention.Claim;
 
 public class Main extends JavaPlugin implements Listener{
@@ -416,7 +419,10 @@ public class Main extends JavaPlugin implements Listener{
 		    	 */
 		    	Skript.registerEvent("WorldBorder Fill Finish Event", SimpleEvent.class, WorldBorderFillFinishedEvent.class, "worldborder (fill|pregen) finish [event]");
 		    	Skript.registerEvent("WorldBorder Trim Finish Event", SimpleEvent.class, WorldBorderTrimFinishedEvent.class, "worldborder trim finish [event]");
-		    	
+		    	Skript.registerExpression(ExprXCenterOfrBorder.class, Double.class, ExpressionType.PROPERTY, "[[r]border] x center location of %string%");
+		    	Skript.registerExpression(ExprZCenterOfrBorder.class, Double.class, ExpressionType.PROPERTY, "[[r]border] z center location of %string%");
+		    	Skript.registerExpression(ExprXRadiusOfrBorder.class, Integer.class, ExpressionType.PROPERTY, "[[r]border] x radius of %string%");
+		    	Skript.registerExpression(ExprZRadiusOfrBorder.class, Integer.class, ExpressionType.PROPERTY, "[[r]border] z radius of %string%");
 		    } else {
 		    	getLogger().info("sKeeland > Unable to find WorldBorder!");
 		    }

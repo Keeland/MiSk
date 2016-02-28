@@ -1,9 +1,7 @@
 package me.keeland.keelansk.askyblock;
 
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.Event;
-import org.bukkit.plugin.Plugin;
 
 import com.wasteofplastic.askyblock.ASkyBlockAPI;
 
@@ -16,11 +14,7 @@ public class ExprIslandWorld extends SimpleExpression<World>{
 
     protected World[] get(Event event) {
     	World w = null;
-    	Plugin plugin = Bukkit.getPluginManager().getPlugin("ASkyBlock");
-        if (plugin instanceof ASkyBlockAPI && plugin.isEnabled()) {
-        	ASkyBlockAPI asb = (ASkyBlockAPI) plugin;
-        	w = asb.getIslandWorld();
-         }
+    	w = ASkyBlockAPI.getInstance().getIslandWorld();
         return new World[] { w };
     }
 

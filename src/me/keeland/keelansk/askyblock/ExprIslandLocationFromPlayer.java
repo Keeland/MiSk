@@ -7,11 +7,12 @@ import ch.njol.util.Kleenean;
 
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.plugin.Plugin;
 
 import com.wasteofplastic.askyblock.ASkyBlockAPI;
 
@@ -42,16 +43,13 @@ public class ExprIslandLocationFromPlayer extends SimpleExpression<Location>{
     }
 
     @Override
+    @Nullable
     protected Location[] get(Event arg0) {
         String p = this.player.getSingle(arg0).getName().toString();
         UUID play = Bukkit.getPlayer(p).getUniqueId();
         Location r = null;
         	
-        Plugin plugin = Bukkit.getPluginManager().getPlugin("ASkyBlock");
-        if (plugin instanceof ASkyBlockAPI && plugin.isEnabled()) { // I should probably stop doing this.
-        	ASkyBlockAPI asb = (ASkyBlockAPI) plugin;
-        	r = asb.getIslandLocation(play);
-        }
+        r = ASkyBlockAPI.getInstance().getIslandLocation(play);
 
         if (r == null){
             return null;

@@ -9,7 +9,6 @@
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/CraftBukkit/target/craftbukkit-1.8.8-R0.1-SNAPSHOT-remapped.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/minecraft_server.1.8.7.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/work/minecraft_server.1.8.8.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/TerrainControl(1).jar"/>
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/askyblock.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/WorldBorder(1).jar"/>
 	<classpathentry kind="output" path="bin"/>

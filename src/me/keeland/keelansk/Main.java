@@ -75,7 +75,6 @@ import me.keeland.keelansk.misc.ExprCPUByte;
 import me.keeland.keelansk.misc.ExprCPUCores;
 import me.keeland.keelansk.misc.ExprCPUUsage;
 import me.keeland.keelansk.misc.ExprDefaultGamemode;
-import me.keeland.keelansk.misc.ExprFixedTPS;
 import me.keeland.keelansk.misc.ExprFreeMemory;
 import me.keeland.keelansk.misc.ExprIdleTimeout;
 import me.keeland.keelansk.misc.ExprKeelanSKVersion;
@@ -136,10 +135,10 @@ import me.keeland.keelansk.towny.ExprPublicStateOfTown;
 import me.keeland.keelansk.towny.ExprPvPStateOfTown;
 import me.keeland.keelansk.towny.ExprResidentsWithoutTown;
 import me.keeland.keelansk.towny.ExprTownAtLocation;
+import me.keeland.keelansk.towny.ExprTownBoard;
 import me.keeland.keelansk.towny.ExprTownsInNation;
 import me.keeland.keelansk.towny.ExprTownsInNationCount;
 import me.keeland.keelansk.towny.ExprWarTime;
-import me.keeland.keelansk.utils.Timer;
 import me.keeland.keelansk.worldborderpl.ExprXCenterOfrBorder;
 import me.keeland.keelansk.worldborderpl.ExprXRadiusOfrBorder;
 import me.keeland.keelansk.worldborderpl.ExprZCenterOfrBorder;
@@ -153,12 +152,12 @@ public class Main extends JavaPlugin implements Listener{
 	public static Main plugin;
 	public static String version;
 	public static Main instance;
-
-    private static Timer timer;
 	
 	private int exprAmount = 0;
 	private int effAmount = 0;
 	private int evtAmount = 0;
+	
+	// Sort registry into seperate files later
 	
 	public void onEnable(){
 		if (Bukkit.getPluginManager().getPlugin("Skript") != null) {
@@ -191,7 +190,6 @@ public class Main extends JavaPlugin implements Listener{
 			Skript.registerExpression(ExprCPUUsage.class, Double.class, ExpressionType.SIMPLE, "cpu usage");
 			Skript.registerExpression(ExprDefaultGamemode.class, GameMode.class, ExpressionType.SIMPLE, "default gamemode"); //set-table
 			Skript.registerExpression(ExprFreeMemory.class, Integer.class, ExpressionType.SIMPLE, "free memory [in] mb");
-			Skript.registerExpression(ExprFixedTPS.class, Double.class, ExpressionType.SIMPLE, "[(skeeland[[']s]|fixed)] tps");
 			Skript.registerExpression(ExprIdleTimeout.class, Integer.class, ExpressionType.SIMPLE, "idle timeout"); //set-table
 			Skript.registerExpression(ExprKeelanSKVersion.class, String.class, ExpressionType.SIMPLE, "skeeland version");
 			Skript.registerExpression(ExprMaxMemory.class, Integer.class, ExpressionType.SIMPLE, "max memory [in] mb");
@@ -209,7 +207,7 @@ public class Main extends JavaPlugin implements Listener{
 			Skript.registerExpression(ExprUptime.class, String.class, ExpressionType.SIMPLE, "[server] up[(-| )]time");
 			Skript.registerExpression(ExprViewDistance.class, Integer.class, ExpressionType.SIMPLE, "view distance");
 			Skript.registerExpression(ExprWaterAnimalSpawnLimit.class, Integer.class, ExpressionType.SIMPLE, "water animal spawn[s] limit");
-			exprAmount += 30;
+			exprAmount += 29;
 			
 			if (Bukkit.getServer().getPluginManager().getPlugin("GriefPrevention") != null) {
 				Bukkit.getLogger().info("sKeeland > GriefPrevention found, registering related expressions...");
@@ -403,6 +401,7 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerExpression(ExprPvPStateOfTown.class, Boolean.class, ExpressionType.PROPERTY, "pvp state of [town] %town%");
 		    	Skript.registerExpression(ExprTownsInNation.class, String.class, ExpressionType.PROPERTY, "town[[']s] (in|of) [nation] %string%");
 		    	Skript.registerExpression(ExprTownAtLocation.class, String.class, ExpressionType.PROPERTY, "town at location %location%");
+		    	Skript.registerExpression(ExprTownBoard.class, String.class, ExpressionType.PROPERTY, "town board of %string%");
 		    	Skript.registerExpression(ExprTownsInNationCount.class, Integer.class, ExpressionType.PROPERTY, "[nation[ ]]town[ ]count of %string%");
 		    	Skript.registerExpression(ExprResidentsWithoutTown.class, String.class, ExpressionType.SIMPLE, "(resident[[']s]|player[[']s]) without [a] town");
 		    	Skript.registerExpression(ExprWarTime.class, Boolean.class, ExpressionType.SIMPLE, "war[ ]time");
@@ -419,11 +418,14 @@ public class Main extends JavaPlugin implements Listener{
 		    	 */
 		    	Skript.registerEvent("WorldBorder Fill Finish Event", SimpleEvent.class, WorldBorderFillFinishedEvent.class, "worldborder (fill|pregen) finish [event]");
 		    	Skript.registerEvent("WorldBorder Trim Finish Event", SimpleEvent.class, WorldBorderTrimFinishedEvent.class, "worldborder trim finish [event]");
-		    	Skript.registerExpression(ExprXCenterOfrBorder.class, Double.class, ExpressionType.PROPERTY, "[[r]border] x center location of %string%");
-		    	Skript.registerExpression(ExprZCenterOfrBorder.class, Double.class, ExpressionType.PROPERTY, "[[r]border] z center location of %string%");
-		    	Skript.registerExpression(ExprXRadiusOfrBorder.class, Integer.class, ExpressionType.PROPERTY, "[[r]border] x radius of %string%");
-		    	Skript.registerExpression(ExprZRadiusOfrBorder.class, Integer.class, ExpressionType.PROPERTY, "[[r]border] z radius of %string%");
+		    	evtAmount += 2;
+		    	Skript.registerExpression(ExprXCenterOfrBorder.class, Double.class, ExpressionType.PROPERTY, "[[r]border] x center location of [world] %string%");
+		    	Skript.registerExpression(ExprZCenterOfrBorder.class, Double.class, ExpressionType.PROPERTY, "[[r]border] z center location of [world] %string%");
+		    	Skript.registerExpression(ExprXRadiusOfrBorder.class, Integer.class, ExpressionType.PROPERTY, "[[r]border] x radius of [world] %string%");
+		    	Skript.registerExpression(ExprZRadiusOfrBorder.class, Integer.class, ExpressionType.PROPERTY, "[[r]border] z radius of [world] %string%");
+		    	
 		    } else {
+		    	
 		    	getLogger().info("sKeeland > Unable to find WorldBorder!");
 		    }
 		    if (Bukkit.getServer().getPluginManager().getPlugin("ASkyBlock") != null) {
@@ -626,7 +628,7 @@ public class Main extends JavaPlugin implements Listener{
 		    	getLogger().info("sKeeland > Unable to find ASkyBlock!");
 		    }
 				
-		    getLogger().info("Loaded a total of " + evtAmount + (evtAmount == 1 ? " event, " : " events, ")  + effAmount + (effAmount == 1 ? " effect and " : " effects and ") + exprAmount + (exprAmount == 1 ? " expression" : " expressions!"));
+		    getLogger().info("Loaded " + evtAmount + (evtAmount == 1 ? " event, " : " events, ")  + effAmount + (effAmount == 1 ? " effect and " : " effects and ") + exprAmount + (exprAmount == 1 ? " expression" : " expressions!"));
 		    
 		} else {
 			getLogger().info("Unable to find Skript, disabling sKeeland...");
@@ -646,9 +648,6 @@ public class Main extends JavaPlugin implements Listener{
         return plugin;
     }
     
-    public static Timer getTimer() {
-        return timer;
-    }
     
     public static String getVersion() {
         return version;

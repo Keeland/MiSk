@@ -7,10 +7,11 @@ import ch.njol.util.Kleenean;
 
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.plugin.Plugin;
 
 import com.wasteofplastic.askyblock.ASkyBlockAPI;
 
@@ -41,16 +42,13 @@ public class ExprTeamMembersFromPlayer extends SimpleExpression<String>{
     }
 
     @Override
+    @Nullable
     protected String[] get(Event arg0) {
         String p = this.player.getSingle(arg0).getName().toString();
         UUID play = Bukkit.getPlayer(p).getUniqueId();
         String r = null;
         	
-        Plugin plugin = Bukkit.getPluginManager().getPlugin("ASkyBlock");
-        if (plugin instanceof ASkyBlockAPI && plugin.isEnabled()) {
-        	ASkyBlockAPI asb = (ASkyBlockAPI) plugin;
-        	r = asb.getTeamMembers(play).toString();
-        }
+        r = ASkyBlockAPI.getInstance().getTeamMembers(play).toString();
 
         if (r == null){
             return null;

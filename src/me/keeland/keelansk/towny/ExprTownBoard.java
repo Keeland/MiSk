@@ -8,12 +8,13 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
+import javax.annotation.Nullable;
+
 import org.bukkit.event.Event;
 
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownyUniverse;
-
 
 public class ExprTownBoard extends SimpleExpression<String>{
 
@@ -43,6 +44,7 @@ public class ExprTownBoard extends SimpleExpression<String>{
     }
 
     @Override
+    @Nullable
     protected String[] get(Event arg0) {
         String t = this.town.getSingle(arg0);
         Town tw = null;

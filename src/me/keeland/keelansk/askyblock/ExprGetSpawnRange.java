@@ -1,8 +1,6 @@
 package me.keeland.keelansk.askyblock;
 
-import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
-import org.bukkit.plugin.Plugin;
 
 import com.wasteofplastic.askyblock.ASkyBlockAPI;
 
@@ -15,11 +13,7 @@ public class ExprGetSpawnRange extends SimpleExpression<Integer>{
 
     protected Integer[] get(Event event) {
     	Integer c = null;
-    	Plugin plugin = Bukkit.getPluginManager().getPlugin("ASkyBlock");
-        if (plugin instanceof ASkyBlockAPI && plugin.isEnabled()) {
-        	ASkyBlockAPI asb = (ASkyBlockAPI) plugin;
-        	c = asb.getSpawnRange();
-        }
+    	c = ASkyBlockAPI.getInstance().getSpawnRange();
         return new Integer[] { c };
     }
 

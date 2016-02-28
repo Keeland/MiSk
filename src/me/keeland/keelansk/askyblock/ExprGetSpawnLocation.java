@@ -1,9 +1,7 @@
 package me.keeland.keelansk.askyblock;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
-import org.bukkit.plugin.Plugin;
 
 import com.wasteofplastic.askyblock.ASkyBlockAPI;
 
@@ -16,11 +14,7 @@ public class ExprGetSpawnLocation extends SimpleExpression<Location>{
 
     protected Location[] get(Event event) {
     	Location c = null;
-    	Plugin plugin = Bukkit.getPluginManager().getPlugin("ASkyBlock");
-        if (plugin instanceof ASkyBlockAPI && plugin.isEnabled()) {
-        	ASkyBlockAPI asb = (ASkyBlockAPI) plugin;
-        	c = asb.getSpawnLocation();
-        }
+    	c = ASkyBlockAPI.getInstance().getSpawnLocation();
         return new Location[] { c };
     }
 

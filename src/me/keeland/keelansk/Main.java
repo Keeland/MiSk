@@ -55,6 +55,7 @@ import me.keeland.keelansk.askyblock.ExprNetherWorld;
 import me.keeland.keelansk.askyblock.ExprOwnerOfIsland;
 import me.keeland.keelansk.askyblock.ExprTeamLeaderFromPlayer;
 import me.keeland.keelansk.askyblock.ExprTeamMembersFromPlayer;
+import me.keeland.keelansk.griefprevention.ExprBonusClaimBlocks;
 import me.keeland.keelansk.griefprevention.ExprClaimAtLocation;
 import me.keeland.keelansk.griefprevention.ExprClaimAtPlayer;
 import me.keeland.keelansk.griefprevention.ExprOwnerOfClaim;
@@ -87,6 +88,7 @@ import me.keeland.keelansk.misc.ExprOSUsername;
 import me.keeland.keelansk.misc.ExprOnlineMode;
 import me.keeland.keelansk.misc.ExprOperatingSystem;
 import me.keeland.keelansk.misc.ExprPing;
+import me.keeland.keelansk.misc.ExprPrefixOfTeamOfPlayer;
 import me.keeland.keelansk.misc.ExprServerIP;
 import me.keeland.keelansk.misc.ExprServerPort;
 import me.keeland.keelansk.misc.ExprSpawnRadius;
@@ -122,15 +124,18 @@ import me.keeland.keelansk.towny.EffSetBonusBlocksOfTown;
 import me.keeland.keelansk.towny.EffSetSetupDelayWar;
 import me.keeland.keelansk.towny.EffStartWarEvent;
 import me.keeland.keelansk.towny.ExprFireStateOfTown;
+import me.keeland.keelansk.towny.ExprKingOfNation;
 import me.keeland.keelansk.towny.ExprMayorOfTown;
 import me.keeland.keelansk.towny.ExprNationAtLocation;
 import me.keeland.keelansk.towny.ExprNationBank;
+import me.keeland.keelansk.towny.ExprNationCapital;
 import me.keeland.keelansk.towny.ExprNationOfPlayer;
 import me.keeland.keelansk.towny.ExprNationOfTown;
 import me.keeland.keelansk.towny.ExprNationPlayerCount;
 import me.keeland.keelansk.towny.ExprNationPlayers;
 import me.keeland.keelansk.towny.ExprNationTaxes;
 import me.keeland.keelansk.towny.ExprNationTownCount;
+import me.keeland.keelansk.towny.ExprPlayersInNation;
 import me.keeland.keelansk.towny.ExprPublicStateOfTown;
 import me.keeland.keelansk.towny.ExprPvPStateOfTown;
 import me.keeland.keelansk.towny.ExprResidentsWithoutTown;
@@ -138,6 +143,7 @@ import me.keeland.keelansk.towny.ExprTownAtLocation;
 import me.keeland.keelansk.towny.ExprTownBoard;
 import me.keeland.keelansk.towny.ExprTownsInNation;
 import me.keeland.keelansk.towny.ExprTownsInNationCount;
+import me.keeland.keelansk.towny.ExprTownsWithoutNation;
 import me.keeland.keelansk.towny.ExprWarTime;
 import me.keeland.keelansk.worldborderpl.ExprXCenterOfrBorder;
 import me.keeland.keelansk.worldborderpl.ExprXRadiusOfrBorder;
@@ -157,7 +163,7 @@ public class Main extends JavaPlugin implements Listener{
 	private int effAmount = 0;
 	private int evtAmount = 0;
 	
-	// Sort registry into seperate files later
+	// Sort registry into separate files later
 	
 	public void onEnable(){
 		if (Bukkit.getPluginManager().getPlugin("Skript") != null) {
@@ -197,6 +203,7 @@ public class Main extends JavaPlugin implements Listener{
 			Skript.registerExpression(ExprNumberOfAllLoadedChunks.class, Integer.class, ExpressionType.SIMPLE, "number of [all] load[ed] chunks");
 			Skript.registerExpression(ExprNumberOfAllLoadedEntities.class, Integer.class, ExpressionType.SIMPLE, "number of [all] load[ed] entities");
 			Skript.registerExpression(ExprOnlineMode.class, Boolean.class, ExpressionType.SIMPLE, "online mode");
+			Skript.registerExpression(ExprPrefixOfTeamOfPlayer.class, String.class, ExpressionType.PROPERTY, "team prefix of %string%");
 			Skript.registerExpression(ExprPing.class, Integer.class, ExpressionType.PROPERTY, "kping of %player%");
 			Skript.registerExpression(ExprServerIP.class, String.class, ExpressionType.SIMPLE, "[server[ ]]ip");
 			Skript.registerExpression(ExprServerPort.class, Integer.class, ExpressionType.SIMPLE, "[server[ ]]port");
@@ -218,7 +225,8 @@ public class Main extends JavaPlugin implements Listener{
 				Skript.registerExpression(ExprClaimAtLocation.class, Claim.class, ExpressionType.PROPERTY, "claim at %location%");
 				Skript.registerExpression(ExprOwnerOfClaim.class, String.class, ExpressionType.PROPERTY, "owner of [claim] %claim%");
 				Skript.registerExpression(ExprRemainingClaimBlocks.class, Integer.class, ExpressionType.PROPERTY, "remaining [claim] block[[']s] of [player] %player%");
-				exprAmount += 4;
+				Skript.registerExpression(ExprBonusClaimBlocks.class, Integer.class, ExpressionType.PROPERTY, "bonus [claim] block[[']s] of [player] %player%");
+				exprAmount += 5;
 				
 			} else {
 				getLogger().info("sKeeland > Unable to find GriefPrevention!");
@@ -297,19 +305,19 @@ public class Main extends JavaPlugin implements Listener{
 					}
 				}, 0);
 		    	// new town event event-string?
-		    	EventValues.registerEventValue(NewTownEvent.class, Town.class, new Getter<Town, NewTownEvent>() {
+		    	EventValues.registerEventValue(NewTownEvent.class, String.class, new Getter<String, NewTownEvent>() {
 					
-					public Town get(NewTownEvent e) {
+					public String get(NewTownEvent e) {
 						
-						return e.getTown();
+						return e.getTown().toString();
 					}
 				}, 0);
-		    	// town add resident event event-resident?
-		    	EventValues.registerEventValue(TownAddResidentEvent.class, Resident.class, new Getter<Resident, TownAddResidentEvent>() {
+		    	// town add resident event event-player
+		    	EventValues.registerEventValue(TownAddResidentEvent.class, Player.class, new Getter<Player, TownAddResidentEvent>() {
 					
-					public Resident get(TownAddResidentEvent e) {
+					public Player get(TownAddResidentEvent e) {
 						
-						return e.getResident();
+						return Bukkit.getPlayer(e.getResident().toString());
 					}
 				}, 0);
 		    	// town add resident event event-town?
@@ -320,12 +328,12 @@ public class Main extends JavaPlugin implements Listener{
 						return e.getTown();
 					}
 				}, 0);
-		    	// town remove resident event event-resident?
-		    	EventValues.registerEventValue(TownRemoveResidentEvent.class, Resident.class, new Getter<Resident, TownRemoveResidentEvent>() {
+		    	// town remove resident event event-player
+		    	EventValues.registerEventValue(TownRemoveResidentEvent.class, Player.class, new Getter<Player, TownRemoveResidentEvent>() {
 					
-					public Resident get(TownRemoveResidentEvent e) {
+					public Player get(TownRemoveResidentEvent e) {
 						
-						return e.getResident();
+						return Bukkit.getPlayer(e.getResident().toString());
 					}
 				}, 0);
 		    	// town remove resident event event-town?
@@ -388,7 +396,9 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerEffect(EffSetBonusBlocksOfTown.class, new String[] { "set bonus blocks of %string% to %integer%" });
 		    	effAmount += 24;
 		    	Skript.registerExpression(ExprFireStateOfTown.class, Boolean.class, ExpressionType.PROPERTY, "fire state of [town] %town%");
-		    	Skript.registerExpression(ExprMayorOfTown.class, Resident.class, ExpressionType.PROPERTY, "mayor of [town] %town%"); //set-table
+		    	Skript.registerExpression(ExprNationCapital.class, String.class, ExpressionType.PROPERTY, "capital of [nation] %string%");
+		    	Skript.registerExpression(ExprKingOfNation.class, Player.class, ExpressionType.PROPERTY, "king of [nation] %string%");
+		    	Skript.registerExpression(ExprMayorOfTown.class, Resident.class, ExpressionType.PROPERTY, "mayor of [town] %string%"); //set-table
 		    	Skript.registerExpression(ExprNationAtLocation.class, Nation.class, ExpressionType.PROPERTY, "nation at %location%");
 		    	Skript.registerExpression(ExprNationOfPlayer.class, Nation.class, ExpressionType.PROPERTY, "nation of %player%");
 		    	Skript.registerExpression(ExprNationOfTown.class, Nation.class, ExpressionType.PROPERTY, "nation of town %string%", "%string%[']s nation");
@@ -397,15 +407,17 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerExpression(ExprNationTownCount.class, Integer.class, ExpressionType.PROPERTY, "nation town[ ]count of %string%");
 		    	Skript.registerExpression(ExprNationPlayers.class, String.class, ExpressionType.PROPERTY, "player[[']s] of nation %string%, player[[']s] in nation %string%");
 		    	Skript.registerExpression(ExprNationTaxes.class, Double.class, ExpressionType.PROPERTY, "nation taxes of %string%");
+		    	Skript.registerExpression(ExprPlayersInNation.class, String.class, ExpressionType.PROPERTY, "players of nation %string%");
 		    	Skript.registerExpression(ExprPublicStateOfTown.class, Boolean.class, ExpressionType.PROPERTY, "public state of [town] %town%");
-		    	Skript.registerExpression(ExprPvPStateOfTown.class, Boolean.class, ExpressionType.PROPERTY, "pvp state of [town] %town%");
+		    	Skript.registerExpression(ExprPvPStateOfTown.class, Boolean.class, ExpressionType.PROPERTY, "pvp state of [town] %string%");
 		    	Skript.registerExpression(ExprTownsInNation.class, String.class, ExpressionType.PROPERTY, "town[[']s] (in|of) [nation] %string%");
 		    	Skript.registerExpression(ExprTownAtLocation.class, String.class, ExpressionType.PROPERTY, "town at location %location%");
 		    	Skript.registerExpression(ExprTownBoard.class, String.class, ExpressionType.PROPERTY, "town board of %string%");
 		    	Skript.registerExpression(ExprTownsInNationCount.class, Integer.class, ExpressionType.PROPERTY, "[nation[ ]]town[ ]count of %string%");
 		    	Skript.registerExpression(ExprResidentsWithoutTown.class, String.class, ExpressionType.SIMPLE, "(resident[[']s]|player[[']s]) without [a] town");
+		    	Skript.registerExpression(ExprTownsWithoutNation.class, String.class, ExpressionType.SIMPLE, "town[[']s] without [a] nation");
 		    	Skript.registerExpression(ExprWarTime.class, Boolean.class, ExpressionType.SIMPLE, "war[ ]time");
-		    	exprAmount += 17;
+		    	exprAmount += 21;
 		    	
 			} else {
 				getLogger().info("sKeeland > Unable to find Towny!");
@@ -416,6 +428,7 @@ public class Main extends JavaPlugin implements Listener{
 		    	/**
 		    	 * Worldborder Expressions
 		    	 */
+		    	// Skript.registerEvent("WorldBorder Fill Start", SimpleEvent.class, WorldBorderFillStartEvent.class, "worldborder (fill|pregen) start [event]");
 		    	Skript.registerEvent("WorldBorder Fill Finish Event", SimpleEvent.class, WorldBorderFillFinishedEvent.class, "worldborder (fill|pregen) finish [event]");
 		    	Skript.registerEvent("WorldBorder Trim Finish Event", SimpleEvent.class, WorldBorderTrimFinishedEvent.class, "worldborder trim finish [event]");
 		    	evtAmount += 2;

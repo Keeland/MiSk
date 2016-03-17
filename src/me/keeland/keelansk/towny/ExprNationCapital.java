@@ -8,17 +8,16 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
-import com.palmergames.bukkit.towny.object.Resident;
-import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.TownyUniverse;
 
-public class ExprMayorOfTown extends SimpleExpression<Resident>{
+public class ExprNationCapital extends SimpleExpression<String>{
 
-    private Expression<String> town;
+    private Expression<String> nation;
 
-    public Class<? extends Resident> getReturnType() {
+    public Class<? extends String> getReturnType() {
 
-        return Resident.class;
+        return String.class;
     }
 
     @Override
@@ -29,21 +28,21 @@ public class ExprMayorOfTown extends SimpleExpression<Resident>{
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] args, int arg1, Kleenean arg2, ParseResult arg3) {
-        this.town = (Expression<String>) args[0];
+        this.nation = (Expression<String>) args[0];
         return true;
     }
 
     @Override
-    public String toString(Event arg0, boolean arg1) {
-        return "return mayor of town";
+    public String toString( Event arg0, boolean arg1) {
+        return "return nation capital";
     }
 
     @Override
-    protected Resident[] get(Event arg0) {
-        String t = this.town.getSingle(arg0);
-        Town tw = null;
+    protected String[] get(Event arg0) {
+        String t = this.nation.getSingle(arg0);
+        Nation tw = null;
         try {
-            tw = TownyUniverse.getDataSource().getTown(t);
+            tw = TownyUniverse.getDataSource().getNation(t);
         } catch (NotRegisteredException e) {
             e.printStackTrace();
         }
@@ -52,10 +51,10 @@ public class ExprMayorOfTown extends SimpleExpression<Resident>{
             return null;
         }
 
-        Resident i = null;
-        i = tw.getMayor();
+        String tr = null;
+        tr = tw.getCapital().toString();
 
-        return new Resident[] { i };
+        return new String[] { tr };
     }
 
 }

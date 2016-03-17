@@ -8,17 +8,16 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
-import com.palmergames.bukkit.towny.object.Resident;
-import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.TownyUniverse;
 
-public class ExprMayorOfTown extends SimpleExpression<Resident>{
+public class ExprPlayersInNation extends SimpleExpression<String>{
 
-    private Expression<String> town;
+    private Expression<String> nation;
 
-    public Class<? extends Resident> getReturnType() {
+    public Class<? extends String> getReturnType() {
 
-        return Resident.class;
+        return String.class;
     }
 
     @Override
@@ -29,33 +28,32 @@ public class ExprMayorOfTown extends SimpleExpression<Resident>{
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] args, int arg1, Kleenean arg2, ParseResult arg3) {
-        this.town = (Expression<String>) args[0];
+        this.nation = (Expression<String>) args[0];
         return true;
     }
 
     @Override
     public String toString(Event arg0, boolean arg1) {
-        return "return mayor of town";
+        return "return list of players in a nation";
     }
 
     @Override
-    protected Resident[] get(Event arg0) {
-        String t = this.town.getSingle(arg0);
-        Town tw = null;
+    protected String[] get(Event arg0) {
+        String t = this.nation.getSingle(arg0);
+        Nation nw = null;
         try {
-            tw = TownyUniverse.getDataSource().getTown(t);
+            nw = TownyUniverse.getDataSource().getNation(t);
         } catch (NotRegisteredException e) {
             e.printStackTrace();
         }
 
-        if (tw == null){
+        if (nw == null){
             return null;
         }
 
-        Resident i = null;
-        i = tw.getMayor();
+        String pl = nw.getResidents().toString();
 
-        return new Resident[] { i };
+        return new String[] { pl };
     }
 
 }

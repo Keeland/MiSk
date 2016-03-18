@@ -55,6 +55,7 @@ import me.keeland.keelansk.askyblock.ExprNetherWorld;
 import me.keeland.keelansk.askyblock.ExprOwnerOfIsland;
 import me.keeland.keelansk.askyblock.ExprTeamLeaderFromPlayer;
 import me.keeland.keelansk.askyblock.ExprTeamMembersFromPlayer;
+import me.keeland.keelansk.cilentworldborder.EffSetWarningBlocksOfPlayer;
 import me.keeland.keelansk.griefprevention.ExprBonusClaimBlocks;
 import me.keeland.keelansk.griefprevention.ExprClaimAtLocation;
 import me.keeland.keelansk.griefprevention.ExprClaimAtPlayer;
@@ -145,6 +146,7 @@ import me.keeland.keelansk.towny.ExprTownsInNation;
 import me.keeland.keelansk.towny.ExprTownsInNationCount;
 import me.keeland.keelansk.towny.ExprTownsWithoutNation;
 import me.keeland.keelansk.towny.ExprWarTime;
+import me.keeland.keelansk.utils.DataUtils;
 import me.keeland.keelansk.worldborderpl.ExprXCenterOfrBorder;
 import me.keeland.keelansk.worldborderpl.ExprXRadiusOfrBorder;
 import me.keeland.keelansk.worldborderpl.ExprZCenterOfrBorder;
@@ -166,6 +168,9 @@ public class Main extends JavaPlugin implements Listener{
 	// Sort registry into separate files later
 	
 	public void onEnable(){
+		
+		DataUtils.loadConfig();
+		
 		if (Bukkit.getPluginManager().getPlugin("Skript") != null) {
 			Skript.registerAddon(this);  
 			Bukkit.getPluginManager().registerEvents(this, this);
@@ -640,7 +645,19 @@ public class Main extends JavaPlugin implements Listener{
 		    } else {
 		    	getLogger().info("sKeeland > Unable to find ASkyBlock!");
 		    }
-				
+		    if (DataUtils.usecilentsideworldborders) {
+		    	Bukkit.getLogger().info("sKeeland > registering cilentside worldborder effects...");
+		    	/**
+		    	 * Cilent Worldborder Effects
+		    	 */
+		    	
+		    	Skript.registerEffect(EffSetWarningBlocksOfPlayer.class, new String[] { "set worldborder warning blocks of %player% to %integer%" });
+		    	effAmount += 1;
+		    	
+		    } else {
+		    	Bukkit.getLogger().info("sKeeland > Skipping cilent worldborder effects...");
+		    }
+		    
 		    getLogger().info("Loaded " + evtAmount + (evtAmount == 1 ? " event, " : " events, ")  + effAmount + (effAmount == 1 ? " effect and " : " effects and ") + exprAmount + (exprAmount == 1 ? " expression" : " expressions!"));
 		    
 		} else {

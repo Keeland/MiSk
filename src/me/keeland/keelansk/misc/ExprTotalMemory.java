@@ -7,29 +7,27 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-public class ExprTotalMemory extends SimpleExpression<Integer>{
+public class ExprTotalMemory extends SimpleExpression<String>{
 
-	protected Integer[] get(Event event) {
-		long l = Runtime.getRuntime().totalMemory();
-		int i = 0;
-		if (!(l < Integer.MIN_VALUE || l > Integer.MAX_VALUE)) i =  (int) l;
-		int j = (i/1024/1024);
-		return new Integer[] { j };
+    protected String[] get(Event event) {
+        long l = Runtime.getRuntime().totalMemory()/1024/1024;
+        String i = "" + l + "";
+        return new String[] { i };
     }
 
-	public boolean isSingle() { 
-		return true;
-	}
-
-    public Class<? extends Integer> getReturnType() { 
-    	return Integer.class;
+    public boolean isSingle() {
+        return true;
     }
 
-	public String toString(Event event, boolean b) {
-		return this.getClass().getName();
-	}
+    public Class<? extends String> getReturnType() {
+        return String.class;
+    }
 
-	public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {    
-		return true;
-	}
+    public String toString(Event event, boolean b) {
+        return this.getClass().getName();
+    }
+
+    public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
+        return true;
+    }
 }	

@@ -55,7 +55,6 @@ import me.keeland.keelansk.askyblock.ExprNetherWorld;
 import me.keeland.keelansk.askyblock.ExprOwnerOfIsland;
 import me.keeland.keelansk.askyblock.ExprTeamLeaderFromPlayer;
 import me.keeland.keelansk.askyblock.ExprTeamMembersFromPlayer;
-import me.keeland.keelansk.cilentworldborder.EffSetWarningBlocksOfPlayer;
 import me.keeland.keelansk.griefprevention.ExprBonusClaimBlocks;
 import me.keeland.keelansk.griefprevention.ExprClaimAtLocation;
 import me.keeland.keelansk.griefprevention.ExprClaimAtPlayer;
@@ -136,6 +135,7 @@ import me.keeland.keelansk.towny.ExprNationPlayerCount;
 import me.keeland.keelansk.towny.ExprNationPlayers;
 import me.keeland.keelansk.towny.ExprNationTaxes;
 import me.keeland.keelansk.towny.ExprNationTownCount;
+import me.keeland.keelansk.towny.ExprPlayerIsNeutral;
 import me.keeland.keelansk.towny.ExprPlayersInNation;
 import me.keeland.keelansk.towny.ExprPublicStateOfTown;
 import me.keeland.keelansk.towny.ExprPvPStateOfTown;
@@ -146,7 +146,6 @@ import me.keeland.keelansk.towny.ExprTownsInNation;
 import me.keeland.keelansk.towny.ExprTownsInNationCount;
 import me.keeland.keelansk.towny.ExprTownsWithoutNation;
 import me.keeland.keelansk.towny.ExprWarTime;
-import me.keeland.keelansk.utils.DataUtils;
 import me.keeland.keelansk.worldborderpl.ExprXCenterOfrBorder;
 import me.keeland.keelansk.worldborderpl.ExprXRadiusOfrBorder;
 import me.keeland.keelansk.worldborderpl.ExprZCenterOfrBorder;
@@ -169,11 +168,10 @@ public class Main extends JavaPlugin implements Listener{
 	
 	public void onEnable(){
 		
-		DataUtils.loadConfig();
-		
 		if (Bukkit.getPluginManager().getPlugin("Skript") != null) {
 			Skript.registerAddon(this);  
 			Bukkit.getPluginManager().registerEvents(this, this);
+		//	saveDefaultConfig();
 			/**
 			 * Register independent classes
 			 */
@@ -200,10 +198,10 @@ public class Main extends JavaPlugin implements Listener{
 			Skript.registerExpression(ExprBukkitVersion.class, String.class, ExpressionType.SIMPLE, "bukkit version");
 			Skript.registerExpression(ExprCPUUsage.class, Double.class, ExpressionType.SIMPLE, "cpu usage");
 			Skript.registerExpression(ExprDefaultGamemode.class, GameMode.class, ExpressionType.SIMPLE, "default gamemode"); //set-table
-			Skript.registerExpression(ExprFreeMemory.class, Integer.class, ExpressionType.SIMPLE, "free memory [in] mb");
+			Skript.registerExpression(ExprFreeMemory.class, String.class, ExpressionType.SIMPLE, "free memory [in] mb");
 			Skript.registerExpression(ExprIdleTimeout.class, Integer.class, ExpressionType.SIMPLE, "idle timeout"); //set-table
 			Skript.registerExpression(ExprKeelanSKVersion.class, String.class, ExpressionType.SIMPLE, "skeeland version");
-			Skript.registerExpression(ExprMaxMemory.class, Integer.class, ExpressionType.SIMPLE, "max memory [in] mb");
+			Skript.registerExpression(ExprMaxMemory.class, String.class, ExpressionType.SIMPLE, "max memory [in] mb");
 			Skript.registerExpression(ExprMonsterSpawnLimit.class, Integer.class, ExpressionType.SIMPLE, "monster spawn[s] limit");
 			Skript.registerExpression(ExprNumberOfAllLoadedChunks.class, Integer.class, ExpressionType.SIMPLE, "number of [all] load[ed] chunks");
 			Skript.registerExpression(ExprNumberOfAllLoadedEntities.class, Integer.class, ExpressionType.SIMPLE, "number of [all] load[ed] entities");
@@ -215,7 +213,7 @@ public class Main extends JavaPlugin implements Listener{
 			Skript.registerExpression(ExprSpawnRadius.class, Integer.class, ExpressionType.SIMPLE, "spawn radi[us]"); //set-table
 			Skript.registerExpression(ExprTicksPerAnimalSpawns.class, Integer.class, ExpressionType.SIMPLE, "tick[s] per animal spawn[s]");
 			Skript.registerExpression(ExprTicksPerMonsterSpawns.class, Integer.class, ExpressionType.SIMPLE, "tick[s] per monster spawn[s]");
-			Skript.registerExpression(ExprTotalMemory.class, Integer.class, ExpressionType.SIMPLE, "total memory [in] mb");
+			Skript.registerExpression(ExprTotalMemory.class, String.class, ExpressionType.SIMPLE, "total memory [in] mb");
 			Skript.registerExpression(ExprUptime.class, String.class, ExpressionType.SIMPLE, "[server] up[(-| )]time");
 			Skript.registerExpression(ExprViewDistance.class, Integer.class, ExpressionType.SIMPLE, "view distance");
 			Skript.registerExpression(ExprWaterAnimalSpawnLimit.class, Integer.class, ExpressionType.SIMPLE, "water animal spawn[s] limit");
@@ -412,6 +410,7 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerExpression(ExprNationTownCount.class, Integer.class, ExpressionType.PROPERTY, "nation town[ ]count of %string%");
 		    	Skript.registerExpression(ExprNationPlayers.class, String.class, ExpressionType.PROPERTY, "player[[']s] of nation %string%, player[[']s] in nation %string%");
 		    	Skript.registerExpression(ExprNationTaxes.class, Double.class, ExpressionType.PROPERTY, "nation taxes of %string%");
+		    	Skript.registerExpression(ExprPlayerIsNeutral.class, Boolean.class, ExpressionType.PROPERTY, "%player%[[']s] neutrality [state], %player% is neutral");
 		    	Skript.registerExpression(ExprPlayersInNation.class, String.class, ExpressionType.PROPERTY, "players of nation %string%");
 		    	Skript.registerExpression(ExprPublicStateOfTown.class, Boolean.class, ExpressionType.PROPERTY, "public state of [town] %town%");
 		    	Skript.registerExpression(ExprPvPStateOfTown.class, Boolean.class, ExpressionType.PROPERTY, "pvp state of [town] %string%");
@@ -422,7 +421,7 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerExpression(ExprResidentsWithoutTown.class, String.class, ExpressionType.SIMPLE, "(resident[[']s]|player[[']s]) without [a] town");
 		    	Skript.registerExpression(ExprTownsWithoutNation.class, String.class, ExpressionType.SIMPLE, "town[[']s] without [a] nation");
 		    	Skript.registerExpression(ExprWarTime.class, Boolean.class, ExpressionType.SIMPLE, "war[ ]time");
-		    	exprAmount += 21;
+		    	exprAmount += 22;
 		    	
 			} else {
 				getLogger().info("sKeeland > Unable to find Towny!");
@@ -645,19 +644,20 @@ public class Main extends JavaPlugin implements Listener{
 		    } else {
 		    	getLogger().info("sKeeland > Unable to find ASkyBlock!");
 		    }
-		    if (DataUtils.usecilentsideworldborders) {
-		    	Bukkit.getLogger().info("sKeeland > registering cilentside worldborder effects...");
-		    	/**
-		    	 * Cilent Worldborder Effects
-		    	 */
-		    	
-		    	Skript.registerEffect(EffSetWarningBlocksOfPlayer.class, new String[] { "set worldborder warning blocks of %player% to %integer%" });
-		    	effAmount += 1;
-		    	
-		    } else {
-		    	Bukkit.getLogger().info("sKeeland > Skipping cilent worldborder effects...");
-		    }
-		    
+//		    if (DataUtils.usecilentsideworldborder) {
+//		    	Bukkit.getLogger().info("sKeeland > registering cilentside worldborder effects...");
+//		    	/**
+//		    	 * Cilent Worldborder Effects
+//		    	 */
+//		    	
+//		    	Skript.registerEffect(EffSetWarningBlocksOfPlayer.class, new String[] { "set [[world]border] warning blocks (of|for|to) %player% to %integer%" });
+//		    	Skript.registerEffect
+//		    	effAmount += 1;
+//		    	
+//		    } else {
+//		    	Bukkit.getLogger().info("sKeeland > Skipping cilent worldborder effects...");
+//		    }
+//		    
 		    getLogger().info("Loaded " + evtAmount + (evtAmount == 1 ? " event, " : " events, ")  + effAmount + (effAmount == 1 ? " effect and " : " effects and ") + exprAmount + (exprAmount == 1 ? " expression" : " expressions!"));
 		    
 		} else {

@@ -7,22 +7,20 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
-public class ExprFreeMemory extends SimpleExpression<Integer>{
+public class ExprFreeMemory extends SimpleExpression<String>{
 
-    protected Integer[] get(Event event) {
-        long l = Runtime.getRuntime().freeMemory();
-        int i = 0;
-        if (!(l < Integer.MIN_VALUE || l > Integer.MAX_VALUE)) i = (int)l;
-        int j = (i/1024/1024);
-        return new Integer[] { j };
+    protected String[] get(Event event) {
+        long l = Runtime.getRuntime().freeMemory()/1024/1024;
+        String i = "" + l + "";
+        return new String[] { i };
     }
 
     public boolean isSingle() {
         return true;
     }
 
-    public Class<? extends Integer> getReturnType() {
-        return Integer.class;
+    public Class<? extends String> getReturnType() {
+        return String.class;
     }
 
     public String toString(Event event, boolean b) {

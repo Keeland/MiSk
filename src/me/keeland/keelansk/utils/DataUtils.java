@@ -9,17 +9,15 @@ import me.keeland.keelansk.Main;
 public class DataUtils {
 	
     public static Integer fakeMaxPlayers;
-
     private static File CFG = new File(Main.getInstance().getDataFolder(), "config.yml");
-
-	public static boolean usecilentsideworldborders;
+    
+	public static boolean usecilentsideworldborder;
 
     public static void loadConfig() {
         loadDefaultFiles(new String[]{"config.yml"});
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(CFG);
 
-        usecilentsideworldborders = yaml.getBoolean("usecilentsideworldborders");
-
+        usecilentsideworldborder = yaml.getBoolean("usecilentsideworldborders");
     }
 
     public static void loadDefaultFiles(String[] names) {

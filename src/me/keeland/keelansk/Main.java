@@ -60,6 +60,8 @@ import me.keeland.keelansk.griefprevention.ExprClaimAtLocation;
 import me.keeland.keelansk.griefprevention.ExprClaimAtPlayer;
 import me.keeland.keelansk.griefprevention.ExprOwnerOfClaim;
 import me.keeland.keelansk.griefprevention.ExprRemainingClaimBlocks;
+import me.keeland.keelansk.koth.ExprCappingPlayerOfKoth;
+import me.keeland.keelansk.koth.ExprRemainingTime;
 import me.keeland.keelansk.misc.EffFakeMaxPlayers;
 import me.keeland.keelansk.misc.EffOpenBrewingStand;
 import me.keeland.keelansk.misc.EffReloadServer;
@@ -99,7 +101,6 @@ import me.keeland.keelansk.misc.ExprTotalMemory;
 import me.keeland.keelansk.misc.ExprUptime;
 import me.keeland.keelansk.misc.ExprViewDistance;
 import me.keeland.keelansk.misc.ExprWaterAnimalSpawnLimit;
-import me.keeland.keelansk.towny.EffAddBonusBlocksToTown;
 import me.keeland.keelansk.towny.EffAddResidentToTown;
 import me.keeland.keelansk.towny.EffBackupTownyData;
 import me.keeland.keelansk.towny.EffDeleteNation;
@@ -108,11 +109,8 @@ import me.keeland.keelansk.towny.EffDeleteTown;
 import me.keeland.keelansk.towny.EffEliminateNation;
 import me.keeland.keelansk.towny.EffEliminateTown;
 import me.keeland.keelansk.towny.EffEndWarEvent;
-import me.keeland.keelansk.towny.EffFireStateOfTown;
 import me.keeland.keelansk.towny.EffNewNation;
 import me.keeland.keelansk.towny.EffNewTown;
-import me.keeland.keelansk.towny.EffPublicStateOfTown;
-import me.keeland.keelansk.towny.EffPvPStateOfTown;
 import me.keeland.keelansk.towny.EffRemoveNation;
 import me.keeland.keelansk.towny.EffRemoveResidentFromTown;
 import me.keeland.keelansk.towny.EffRemoveTown;
@@ -120,7 +118,6 @@ import me.keeland.keelansk.towny.EffRemoveTownFromNation;
 import me.keeland.keelansk.towny.EffRenameNation;
 import me.keeland.keelansk.towny.EffRenameTown;
 import me.keeland.keelansk.towny.EffSaveTownyData;
-import me.keeland.keelansk.towny.EffSetBonusBlocksOfTown;
 import me.keeland.keelansk.towny.EffSetSetupDelayWar;
 import me.keeland.keelansk.towny.EffStartWarEvent;
 import me.keeland.keelansk.towny.ExprFireStateOfTown;
@@ -142,10 +139,14 @@ import me.keeland.keelansk.towny.ExprPvPStateOfTown;
 import me.keeland.keelansk.towny.ExprResidentsWithoutTown;
 import me.keeland.keelansk.towny.ExprTownAtLocation;
 import me.keeland.keelansk.towny.ExprTownBoard;
+import me.keeland.keelansk.towny.ExprTownBonusBlocks;
 import me.keeland.keelansk.towny.ExprTownsInNation;
 import me.keeland.keelansk.towny.ExprTownsInNationCount;
 import me.keeland.keelansk.towny.ExprTownsWithoutNation;
 import me.keeland.keelansk.towny.ExprWarTime;
+import me.keeland.keelansk.uskyblock.ExprIslandLevelOfPlayer;
+import me.keeland.keelansk.uskyblock.ExprIslandRankAtLocation;
+import me.keeland.keelansk.uskyblock.ExprIslandRankOfPlayer;
 import me.keeland.keelansk.worldborderpl.ExprXCenterOfrBorder;
 import me.keeland.keelansk.worldborderpl.ExprXRadiusOfrBorder;
 import me.keeland.keelansk.worldborderpl.ExprZCenterOfrBorder;
@@ -164,8 +165,7 @@ public class Main extends JavaPlugin implements Listener{
 	private int effAmount = 0;
 	private int evtAmount = 0;
 	
-	// Sort registry into separate files later
-	
+	// Sort registry into separate files later m8
 	public void onEnable(){
 		
 		if (Bukkit.getPluginManager().getPlugin("Skript") != null) {
@@ -233,6 +233,19 @@ public class Main extends JavaPlugin implements Listener{
 				
 			} else {
 				getLogger().info("sKeeland > Unable to find GriefPrevention!");
+			}
+			
+			if (Bukkit.getServer().getPluginManager().getPlugin("NexGenKoTHs") != null) {
+		    	Bukkit.getLogger().info("sKeeland > NexGenKoTHs found, registering related expressions...");
+		    	/**
+		    	 * NexGenKoTHs Expressions
+		    	 */
+		    	Skript.registerExpression(ExprRemainingTime.class, String.class, ExpressionType.PROPERTY, "[koth] [get] remaining [capture] time of [koth] %string%");
+		    	Skript.registerExpression(ExprCappingPlayerOfKoth.class, Player.class, ExpressionType.PROPERTY, "[koth] [get] (capping|capturing) player of [koth] %string%");
+		    	exprAmount += 2;
+		    	
+			} else {
+				getLogger().info("sKeeland > Unable to find NexGenKoTHs!");
 			}
 			
 		    if (Bukkit.getServer().getPluginManager().getPlugin("Towny") != null) {
@@ -390,15 +403,10 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerEffect(EffRemoveTown.class, new String[] { "(remove|rem) town %town%" });
 		    	Skript.registerEffect(EffRemoveResidentFromTown.class, new String[] { "remove %string% from town %town%" });
 		    	Skript.registerEffect(EffRemoveTownFromNation.class, new String[] { "remove %string% from nation %nation%" });
-		    	Skript.registerEffect(EffPublicStateOfTown.class, new String[] { "set public state of %town% to %boolean%" });
-		    	Skript.registerEffect(EffPvPStateOfTown.class, new String[] { "set pvp state of %town% to %boolean%" });
-		    	Skript.registerEffect(EffFireStateOfTown.class, new String[] { "set fire state of %town% to %boolean%" });
 		    	Skript.registerEffect(EffSetSetupDelayWar.class, new String[] { "set war [set[up]] delay to %integer%" });
 		    	Skript.registerEffect(EffSaveTownyData.class, new String[] { "save towny [data]" });
-		    	Skript.registerEffect(EffAddBonusBlocksToTown.class, new String[] { "add %integer% bonus blocks to [town] %string%" });
-		    	Skript.registerEffect(EffSetBonusBlocksOfTown.class, new String[] { "set bonus blocks of %string% to %integer%" });
-		    	effAmount += 24;
-		    	Skript.registerExpression(ExprFireStateOfTown.class, Boolean.class, ExpressionType.PROPERTY, "fire state of [town] %town%");
+		    	effAmount += 19;
+		    	Skript.registerExpression(ExprFireStateOfTown.class, Boolean.class, ExpressionType.PROPERTY, "fire state of [town] %string%");
 		    	Skript.registerExpression(ExprNationCapital.class, String.class, ExpressionType.PROPERTY, "capital of [nation] %string%");
 		    	Skript.registerExpression(ExprKingOfNation.class, Player.class, ExpressionType.PROPERTY, "king of [nation] %string%");
 		    	Skript.registerExpression(ExprMayorOfTown.class, Resident.class, ExpressionType.PROPERTY, "mayor of [town] %string%"); //set-table
@@ -412,16 +420,17 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerExpression(ExprNationTaxes.class, Double.class, ExpressionType.PROPERTY, "nation taxes of %string%");
 		    	Skript.registerExpression(ExprPlayerIsNeutral.class, Boolean.class, ExpressionType.PROPERTY, "%player%[[']s] neutrality [state], %player% is neutral");
 		    	Skript.registerExpression(ExprPlayersInNation.class, String.class, ExpressionType.PROPERTY, "players of nation %string%");
-		    	Skript.registerExpression(ExprPublicStateOfTown.class, Boolean.class, ExpressionType.PROPERTY, "public state of [town] %town%");
+		    	Skript.registerExpression(ExprPublicStateOfTown.class, Boolean.class, ExpressionType.PROPERTY, "public state of [town] %string%");
 		    	Skript.registerExpression(ExprPvPStateOfTown.class, Boolean.class, ExpressionType.PROPERTY, "pvp state of [town] %string%");
 		    	Skript.registerExpression(ExprTownsInNation.class, String.class, ExpressionType.PROPERTY, "town[[']s] (in|of) [nation] %string%");
 		    	Skript.registerExpression(ExprTownAtLocation.class, String.class, ExpressionType.PROPERTY, "town at location %location%");
 		    	Skript.registerExpression(ExprTownBoard.class, String.class, ExpressionType.PROPERTY, "town board of %string%");
+		    	Skript.registerExpression(ExprTownBonusBlocks.class, Integer.class, ExpressionType.PROPERTY, "bonus block[s] of [town] %string%");
 		    	Skript.registerExpression(ExprTownsInNationCount.class, Integer.class, ExpressionType.PROPERTY, "[nation[ ]]town[ ]count of %string%");
 		    	Skript.registerExpression(ExprResidentsWithoutTown.class, String.class, ExpressionType.SIMPLE, "(resident[[']s]|player[[']s]) without [a] town");
 		    	Skript.registerExpression(ExprTownsWithoutNation.class, String.class, ExpressionType.SIMPLE, "town[[']s] without [a] nation");
 		    	Skript.registerExpression(ExprWarTime.class, Boolean.class, ExpressionType.SIMPLE, "war[ ]time");
-		    	exprAmount += 22;
+		    	exprAmount += 23;
 		    	
 			} else {
 				getLogger().info("sKeeland > Unable to find Towny!");
@@ -440,11 +449,27 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerExpression(ExprZCenterOfrBorder.class, Double.class, ExpressionType.PROPERTY, "[[r]border] z center location of [world] %string%");
 		    	Skript.registerExpression(ExprXRadiusOfrBorder.class, Integer.class, ExpressionType.PROPERTY, "[[r]border] x radius of [world] %string%");
 		    	Skript.registerExpression(ExprZRadiusOfrBorder.class, Integer.class, ExpressionType.PROPERTY, "[[r]border] z radius of [world] %string%");
+		    	exprAmount += 4;
 		    	
 		    } else {
 		    	
 		    	getLogger().info("sKeeland > Unable to find WorldBorder!");
 		    }
+		    if (Bukkit.getServer().getPluginManager().getPlugin("uSkyBlock") != null) {
+		    	Bukkit.getLogger().info("sKeeland > uSkyBlock found, registering related expressions...");
+		    	/**
+		    	 * uSkyBlock Expressions
+		    	 */
+		    	Skript.registerExpression(ExprIslandRankOfPlayer.class, String.class, ExpressionType.PROPERTY, "[u[skyblock]] island rank of [player] %player%");
+		    	Skript.registerExpression(ExprIslandLevelOfPlayer.class, Double.class, ExpressionType.PROPERTY, "[u[skyblock]] island level of [player] %player%");
+		    	Skript.registerExpression(ExprIslandRankAtLocation.class, String.class, ExpressionType.PROPERTY, "[u[skyblock]] island rank at %location%");
+		    	exprAmount += 3;
+		    	
+		    } else {
+		    	
+		    	getLogger().info("sKeeland > Unable to find uSkyBlock!");
+		    }
+		    	
 		    if (Bukkit.getServer().getPluginManager().getPlugin("ASkyBlock") != null) {
 		    	Bukkit.getLogger().info("sKeeland > ASkyBlock found, registering related expressions...");
 		    	/**

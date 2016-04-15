@@ -7,20 +7,21 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
+import javax.annotation.Nullable;
+
 import org.bukkit.event.Event;
 
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
-import com.palmergames.bukkit.towny.object.Nation;
+import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownyUniverse;
 
+public class ExprTownBonusBlocks extends SimpleExpression<Integer>{
 
-public class ExprNationTaxes extends SimpleExpression<Double>{
+    private Expression<String> town;
 
-    private Expression<String> nation;
+    public Class<? extends Integer> getReturnType() {
 
-    public Class<? extends Double> getReturnType() {
-
-        return Double.class;
+        return Integer.class;
     }
 
     @Override
@@ -31,22 +32,22 @@ public class ExprNationTaxes extends SimpleExpression<Double>{
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] args, int arg1, Kleenean arg2, ParseResult arg3) {
-        this.nation = (Expression<String>) args[0];
+        this.town = (Expression<String>) args[0];
         return true;
     }
 
     @Override
-    public String toString(@javax.annotation.Nullable Event arg0, boolean arg1) {
-        return "return taxes of a nation";
+    public String toString(Event arg0, boolean arg1) {
+        return "return town board of a town";
     }
 
     @Override
-    @javax.annotation.Nullable
-    protected Double[] get(Event arg0) {
-        String n = this.nation.getSingle(arg0);
-        Nation tw = null;
+    @Nullable
+    protected Integer[] get(Event arg0) {
+        String t = this.town.getSingle(arg0);
+        Town tw = null;
         try {
-            tw = TownyUniverse.getDataSource().getNation(n);
+            tw = TownyUniverse.getDataSource().getTown(t);
         } catch (NotRegisteredException e) {
             e.printStackTrace();
         }
@@ -55,24 +56,27 @@ public class ExprNationTaxes extends SimpleExpression<Double>{
             return null;
         }
 
-        Double i = tw.getTaxes();
+        Integer i = null;
+        i = tw.getBonusBlocks();
 
-        return new Double[] { i };
+        return new Integer[] { i };
     }
     
     @Override
 	public void change(Event e, Object[] delta, Changer.ChangeMode mode) {
-		Nation nwc = null;
+		Town twc = null;
 		try {
-			nwc = TownyUniverse.getDataSource().getNation(this.nation.getSingle(e));
+			twc = TownyUniverse.getDataSource().getTown(this.town.getSingle(e));
 		} catch (NotRegisteredException e1) {
 			e1.printStackTrace();
 		}
-		if (nwc == null)
+		if (twc == null)
 			return;
-		Integer taxes = (Integer) (delta[0]);
+		Integer bonusblocks = (Integer) (delta[0]);
 		if (mode == Changer.ChangeMode.SET) {
-			nwc.setTaxes(taxes.doubleValue());
+			twc.setBonusBlocks(bonusblocks);
+		} else if (mode == Changer.ChangeMode.ADD) {
+			twc.addBonusBlocks(bonusblocks);
 		}
 	}
 
@@ -80,9 +84,10 @@ public class ExprNationTaxes extends SimpleExpression<Double>{
 	@Override
 	public Class<?>[] acceptChange(final Changer.ChangeMode mode) {
 		if (mode == Changer.ChangeMode.SET) {
-			return CollectionUtils.array(Double.class);
+			return CollectionUtils.array(Integer.class);
+		} else if (mode == Changer.ChangeMode.ADD) {
+			return CollectionUtils.array(Integer.class);
 		}
 		return null;
 	}
-
 }

@@ -11,5 +11,7 @@
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/work/minecraft_server.1.8.8.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/askyblock.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/WorldBorder(1).jar"/>
+	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/NexGenKoTHs.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/uSkyBlock.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

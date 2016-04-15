@@ -1,7 +1,6 @@
 package me.keeland.keelansk.towny;
 
 import ch.njol.skript.classes.Changer;
-import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -19,7 +18,6 @@ import com.palmergames.bukkit.towny.object.TownyUniverse;
 public class ExprTownBoard extends SimpleExpression<String>{
 
     private Expression<String> town;
-    private Town tc;
 
     public Class<? extends String> getReturnType() {
 
@@ -64,29 +62,27 @@ public class ExprTownBoard extends SimpleExpression<String>{
         return new String[] { i };
     }
     
-    public void change(Event e, String to, String delta, Changer.ChangeMode mode) throws NotRegisteredException{
-		if (mode == ChangeMode.SET)
-	        tc = null;
-	        try {
-	            tc = TownyUniverse.getDataSource().getTown(to);
-	        } catch (NotRegisteredException e2) {
-	            e2.printStackTrace();
-	        }
-
-	        if (tc == null){
-	            return;
-	        }
-	        
-	        tc.setTownBoard(delta);
-	        
-	        return;
+    @Override
+	public void change(Event e, Object[] delta, Changer.ChangeMode mode) {
+		Town twc = null;
+		try {
+			twc = TownyUniverse.getDataSource().getTown(this.town.getSingle(e));
+		} catch (NotRegisteredException e1) {
+			e1.printStackTrace();
+		}
+		if (twc == null)
+			return;
+		String desc = (String) (delta[0]);
+		if (mode == Changer.ChangeMode.SET) {
+			twc.setTownBoard(desc);
+		}
 	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<?>[] acceptChange(final Changer.ChangeMode mode) {
-		if (mode == ChangeMode.SET)
+		if (mode == Changer.ChangeMode.SET)
 			return CollectionUtils.array(String.class);
 		return null;
 	}
-
 }

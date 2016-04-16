@@ -11,6 +11,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.mrlolethan.nexgenkoths.events.PlayerCaptureKothEvent;
+import com.mrlolethan.nexgenkoths.events.PlayerStartCaptureKothEvent;
+import com.mrlolethan.nexgenkoths.events.PlayerStopCaptureKothEvent;
 import com.palmergames.bukkit.towny.event.DeleteNationEvent;
 import com.palmergames.bukkit.towny.event.DeleteTownEvent;
 import com.palmergames.bukkit.towny.event.MobRemovalEvent;
@@ -145,6 +148,8 @@ import me.keeland.keelansk.towny.ExprTownsInNationCount;
 import me.keeland.keelansk.towny.ExprTownsWithoutNation;
 import me.keeland.keelansk.towny.ExprWarTime;
 import me.keeland.keelansk.uskyblock.ExprIslandLevelOfPlayer;
+import me.keeland.keelansk.uskyblock.ExprIslandMembersAtLocationOfIsland;
+import me.keeland.keelansk.uskyblock.ExprIslandMembersOfPlayersIsland;
 import me.keeland.keelansk.uskyblock.ExprIslandRankAtLocation;
 import me.keeland.keelansk.uskyblock.ExprIslandRankOfPlayer;
 import me.keeland.keelansk.worldborderpl.ExprXCenterOfrBorder;
@@ -233,13 +238,59 @@ public class Main extends JavaPlugin implements Listener{
 				
 			} else {
 				getLogger().info("sKeeland > Unable to find GriefPrevention!");
-			}
+			} // settable
 			
 			if (Bukkit.getServer().getPluginManager().getPlugin("NexGenKoTHs") != null) {
 		    	Bukkit.getLogger().info("sKeeland > NexGenKoTHs found, registering related expressions...");
 		    	/**
 		    	 * NexGenKoTHs Expressions
 		    	 */
+		    	Skript.registerEvent("Koth Player Start Capture", SimpleEvent.class, PlayerStartCaptureKothEvent.class, "player start capture koth [event]","start koth capture by player [event]");
+		    	Skript.registerEvent("Koth Player Stop Capture", SimpleEvent.class, PlayerStopCaptureKothEvent.class, "player stop[ped] capture koth [event]","stop[ped] koth capture by player [event]");
+		    	Skript.registerEvent("Player Capture Koth", SimpleEvent.class, PlayerCaptureKothEvent.class, "player capture koth");
+		    	EventValues.registerEventValue(PlayerStartCaptureKothEvent.class, String.class, new Getter<String, PlayerStartCaptureKothEvent>() {
+		    		
+		    		public String get(PlayerStartCaptureKothEvent e) {
+		    			
+		    			return e.getKoth().toString();
+		    		}
+		    	}, 0);
+		    	EventValues.registerEventValue(PlayerStartCaptureKothEvent.class, Player.class, new Getter<Player, PlayerStartCaptureKothEvent>() {
+		    		
+		    		public Player get(PlayerStartCaptureKothEvent e) {
+		    			
+		    			return e.getPlayer();
+		    		}
+		    	}, 0);
+		    	EventValues.registerEventValue(PlayerStopCaptureKothEvent.class, String.class, new Getter<String, PlayerStopCaptureKothEvent>() {
+		    		
+		    		public String get(PlayerStopCaptureKothEvent e) {
+		    			
+		    			return e.getKoth().toString();
+		    		}
+		    	}, 0);
+		    	EventValues.registerEventValue(PlayerStopCaptureKothEvent.class, Player.class, new Getter<Player, PlayerStopCaptureKothEvent>() {
+		    		
+		    		public Player get(PlayerStopCaptureKothEvent e) {
+		    			
+		    			return e.getPlayer();
+		    		}
+		    	}, 0);
+		    	EventValues.registerEventValue(PlayerCaptureKothEvent.class, String.class, new Getter<String, PlayerCaptureKothEvent>() {
+		    		
+		    		public String get(PlayerCaptureKothEvent e) {
+		    			
+		    			return e.getKoth().toString();
+		    		}
+		    	}, 0);
+		    	EventValues.registerEventValue(PlayerCaptureKothEvent.class, Player.class, new Getter<Player, PlayerCaptureKothEvent>() {
+		    		
+		    		public Player get(PlayerCaptureKothEvent e) {
+		    			
+		    			return e.getPlayer();
+		    		}
+		    	}, 0);
+		    	evtAmount += 3;
 		    	Skript.registerExpression(ExprRemainingTime.class, String.class, ExpressionType.PROPERTY, "[koth] [get] remaining [capture] time of [koth] %string%");
 		    	Skript.registerExpression(ExprCappingPlayerOfKoth.class, Player.class, ExpressionType.PROPERTY, "[koth] [get] (capping|capturing) player of [koth] %string%");
 		    	exprAmount += 2;
@@ -460,10 +511,12 @@ public class Main extends JavaPlugin implements Listener{
 		    	/**
 		    	 * uSkyBlock Expressions
 		    	 */
-		    	Skript.registerExpression(ExprIslandRankOfPlayer.class, String.class, ExpressionType.PROPERTY, "[u[skyblock]] island rank of [player] %player%");
-		    	Skript.registerExpression(ExprIslandLevelOfPlayer.class, Double.class, ExpressionType.PROPERTY, "[u[skyblock]] island level of [player] %player%");
-		    	Skript.registerExpression(ExprIslandRankAtLocation.class, String.class, ExpressionType.PROPERTY, "[u[skyblock]] island rank at %location%");
-		    	exprAmount += 3;
+		    	Skript.registerExpression(ExprIslandRankOfPlayer.class, Integer.class, ExpressionType.PROPERTY, "[u[skyblock]] island rank of %player%");
+		    	Skript.registerExpression(ExprIslandLevelOfPlayer.class, Double.class, ExpressionType.PROPERTY, "[u[skyblock]] island level of %player%");
+		    	Skript.registerExpression(ExprIslandRankAtLocation.class, Integer.class, ExpressionType.PROPERTY, "[u[skyblock]] island rank at %location%");
+		    	Skript.registerExpression(ExprIslandMembersOfPlayersIsland.class, String.class, ExpressionType.PROPERTY, "[u[skyblock]] member[[']s] of %player%[[']s] island");
+		    	Skript.registerExpression(ExprIslandMembersAtLocationOfIsland.class, String.class, ExpressionType.PROPERTY, "[u[skyblock]] member[[']s] of island at %location%");
+		    	exprAmount += 5;
 		    	
 		    } else {
 		    	

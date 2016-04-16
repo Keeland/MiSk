@@ -11,13 +11,13 @@ import javax.annotation.Nullable;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
 
-public class ExprIslandRankAtLocation extends SimpleExpression<String>{
+public class ExprIslandRankAtLocation extends SimpleExpression<Integer>{
 
     private Expression<Location> location;
 
-    public Class<? extends String> getReturnType() {
+    public Class<? extends Integer> getReturnType() {
 
-        return String.class;
+        return Integer.class;
     }
 
     @Override
@@ -39,11 +39,10 @@ public class ExprIslandRankAtLocation extends SimpleExpression<String>{
 
     @Override
     @Nullable
-    protected String[] get(Event arg0) {
+    protected Integer[] get(Event arg0) {
         Location loc = this.location.getSingle(arg0);
-        String r = null;
-        r = uSkyBlock.getAPI().getIslandRank(loc).toString();
-
-        return new String[] { r };
+        Integer r = uSkyBlock.getAPI().getIslandRank(loc).getRank();
+        
+        return new Integer[] { r };
     }
 }

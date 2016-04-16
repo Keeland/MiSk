@@ -8,16 +8,16 @@ import us.talabrek.ultimateskyblock.uSkyBlock;
 
 import javax.annotation.Nullable;
 
-import org.bukkit.entity.Player;
+import org.bukkit.Location;
 import org.bukkit.event.Event;
 
-public class ExprIslandRankOfPlayer extends SimpleExpression<Integer>{
+public class ExprIslandMembersAtLocationOfIsland extends SimpleExpression<String>{
 
-    private Expression<Player> player;
+    private Expression<Location> location;
 
-    public Class<? extends Integer> getReturnType() {
+    public Class<? extends String> getReturnType() {
 
-        return Integer.class;
+        return String.class;
     }
 
     @Override
@@ -28,22 +28,22 @@ public class ExprIslandRankOfPlayer extends SimpleExpression<Integer>{
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] args, int arg1, Kleenean arg2, ParseResult arg3) {
-        this.player = (Expression<Player>) args[0];
+        this.location = (Expression<Location>) args[0];
         return true;
     }
 
     @Override
     public String toString(Event arg0, boolean arg1) {
-        return "return uskyblock island rank of a player";
+        return "return uskyblock island members from a location of an island";
     }
 
     @Override
     @Nullable
-    protected Integer[] get(Event arg0) {
-        Player play = this.player.getSingle(arg0);
-        Integer r = null;
-        r = uSkyBlock.getAPI().getIslandRank(play).getRank();
+    protected String[] get(Event arg0) {
+        Location loc = this.location.getSingle(arg0);
+        String r = null;
+        r = uSkyBlock.getAPI().getIslandRank(loc).getMembers().toString();
 
-        return new Integer[] { r };
+        return new String[] { r };
     }
 }

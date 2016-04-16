@@ -11,13 +11,13 @@ import javax.annotation.Nullable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 
-public class ExprIslandRankOfPlayer extends SimpleExpression<Integer>{
+public class ExprIslandMembersOfPlayersIsland extends SimpleExpression<String>{
 
     private Expression<Player> player;
 
-    public Class<? extends Integer> getReturnType() {
+    public Class<? extends String> getReturnType() {
 
-        return Integer.class;
+        return String.class;
     }
 
     @Override
@@ -34,16 +34,16 @@ public class ExprIslandRankOfPlayer extends SimpleExpression<Integer>{
 
     @Override
     public String toString(Event arg0, boolean arg1) {
-        return "return uskyblock island rank of a player";
+        return "return uskyblock island members from a players island";
     }
 
     @Override
     @Nullable
-    protected Integer[] get(Event arg0) {
+    protected String[] get(Event arg0) {
         Player play = this.player.getSingle(arg0);
-        Integer r = null;
-        r = uSkyBlock.getAPI().getIslandRank(play).getRank();
+        String r = null;
+        r = uSkyBlock.getAPI().getIslandRank(play).getMembers().toString();
 
-        return new Integer[] { r };
+        return new String[] { r };
     }
 }

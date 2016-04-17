@@ -104,6 +104,7 @@ import me.keeland.keelansk.misc.ExprTotalMemory;
 import me.keeland.keelansk.misc.ExprUptime;
 import me.keeland.keelansk.misc.ExprViewDistance;
 import me.keeland.keelansk.misc.ExprWaterAnimalSpawnLimit;
+import me.keeland.keelansk.protocollib.ExprEnchPreviewAbilityOfPlayer;
 import me.keeland.keelansk.towny.EffAddResidentToTown;
 import me.keeland.keelansk.towny.EffBackupTownyData;
 import me.keeland.keelansk.towny.EffDeleteNation;
@@ -152,6 +153,8 @@ import me.keeland.keelansk.uskyblock.ExprIslandMembersAtLocationOfIsland;
 import me.keeland.keelansk.uskyblock.ExprIslandMembersOfPlayersIsland;
 import me.keeland.keelansk.uskyblock.ExprIslandRankAtLocation;
 import me.keeland.keelansk.uskyblock.ExprIslandRankOfPlayer;
+import me.keeland.keelansk.utils.EnchPacListener;
+import me.keeland.keelansk.utils.ReflectionUtils;
 import me.keeland.keelansk.worldborderpl.ExprXCenterOfrBorder;
 import me.keeland.keelansk.worldborderpl.ExprXRadiusOfrBorder;
 import me.keeland.keelansk.worldborderpl.ExprZCenterOfrBorder;
@@ -165,6 +168,7 @@ public class Main extends JavaPlugin implements Listener{
 	public static Main plugin;
 	public static String version;
 	public static Main instance;
+	public static EnchPacListener encpaclist;
 	
 	private int exprAmount = 0;
 	private int effAmount = 0;
@@ -176,6 +180,7 @@ public class Main extends JavaPlugin implements Listener{
 		if (Bukkit.getPluginManager().getPlugin("Skript") != null) {
 			Skript.registerAddon(this);  
 			Bukkit.getPluginManager().registerEvents(this, this);
+			String v = ReflectionUtils.getVersion();
 		//	saveDefaultConfig();
 			/**
 			 * Register independent classes
@@ -223,7 +228,22 @@ public class Main extends JavaPlugin implements Listener{
 			Skript.registerExpression(ExprViewDistance.class, Integer.class, ExpressionType.SIMPLE, "view distance");
 			Skript.registerExpression(ExprWaterAnimalSpawnLimit.class, Integer.class, ExpressionType.SIMPLE, "water animal spawn[s] limit");
 			exprAmount += 29;
-			
+			if (v.equals("v1_8.")) {
+				
+				if (Bukkit.getServer().getPluginManager().getPlugin("ProtocolLib") != null) {
+					Bukkit.getLogger().info("sKeeland > ProtocolLib found, registering related expressions...");
+					/**
+					 * Protocollib required expressions/effects
+					 */
+					Skript.registerExpression(ExprEnchPreviewAbilityOfPlayer.class, Boolean.class, ExpressionType.PROPERTY, "ench[ant[ing]] preview (ability|state)");
+					exprAmount += 1;
+					
+				} else {
+					getLogger().info("sKeeland > Unable to find Protocollib!");
+				}
+			} else {
+				getLogger().info("sKeeland > Skipping 1.8 dependent stuff");
+			}
 			if (Bukkit.getServer().getPluginManager().getPlugin("GriefPrevention") != null) {
 				Bukkit.getLogger().info("sKeeland > GriefPrevention found, registering related expressions...");
 				/**

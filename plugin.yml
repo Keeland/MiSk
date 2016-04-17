@@ -1,7 +1,7 @@
 name: sKeeland
 author: Keeland
 description: Skript Addon for Skript
-version: 0.5.8.1
+version: 0.5.9-pre
 main: me.keeland.keelansk.Main
 depend: [Skript]
-softdepend: [Towny, GriefPrevention, ASkyBlock, WorldBorder, NexGenKoTHs, uSkyBlock]
+softdepend: [Towny, GriefPrevention, ASkyBlock, WorldBorder, NexGenKoTHs, uSkyBlock, ProtocolLib]

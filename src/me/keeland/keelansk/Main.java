@@ -12,6 +12,8 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.mrlolethan.nexgenkoths.events.PlayerCaptureKothEvent;
+import com.mrlolethan.nexgenkoths.events.PlayerEnterKothEvent;
+import com.mrlolethan.nexgenkoths.events.PlayerExitKothEvent;
 import com.mrlolethan.nexgenkoths.events.PlayerStartCaptureKothEvent;
 import com.mrlolethan.nexgenkoths.events.PlayerStopCaptureKothEvent;
 import com.palmergames.bukkit.towny.event.DeleteNationEvent;
@@ -160,6 +162,9 @@ import me.keeland.keelansk.worldborderpl.ExprXRadiusOfrBorder;
 import me.keeland.keelansk.worldborderpl.ExprZCenterOfrBorder;
 import me.keeland.keelansk.worldborderpl.ExprZRadiusOfrBorder;
 import me.ryanhamshire.GriefPrevention.Claim;
+import me.ryanhamshire.GriefPrevention.events.ClaimDeletedEvent;
+import uk.co.jacekk.bukkit.bloodmoon.event.BloodMoonEndEvent;
+import uk.co.jacekk.bukkit.bloodmoon.event.BloodMoonStartEvent;
 
 public class Main extends JavaPlugin implements Listener{
 	
@@ -217,7 +222,7 @@ public class Main extends JavaPlugin implements Listener{
 			Skript.registerExpression(ExprNumberOfAllLoadedEntities.class, Integer.class, ExpressionType.SIMPLE, "number of [all] load[ed] entities");
 			Skript.registerExpression(ExprOnlineMode.class, Boolean.class, ExpressionType.SIMPLE, "online mode");
 			Skript.registerExpression(ExprPrefixOfTeamOfPlayer.class, String.class, ExpressionType.PROPERTY, "team prefix of %string%");
-			Skript.registerExpression(ExprPing.class, Integer.class, ExpressionType.PROPERTY, "kping of %player%");
+			Skript.registerExpression(ExprPing.class, Integer.class, ExpressionType.PROPERTY, "cb ping of %player%");
 			Skript.registerExpression(ExprServerIP.class, String.class, ExpressionType.SIMPLE, "[server[ ]]ip");
 			Skript.registerExpression(ExprServerPort.class, Integer.class, ExpressionType.SIMPLE, "[server[ ]]port");
 			Skript.registerExpression(ExprSpawnRadius.class, Integer.class, ExpressionType.SIMPLE, "spawn radi[us]"); //set-table
@@ -241,24 +246,67 @@ public class Main extends JavaPlugin implements Listener{
 				} else {
 					getLogger().info("sKeeland > Unable to find Protocollib!");
 				}
+				
 			} else {
 				getLogger().info("sKeeland > Skipping 1.8 dependent stuff");
+			}
+			
+			if (Bukkit.getServer().getPluginManager().getPlugin("BloodMoon") != null) {
+				Bukkit.getLogger().info("sKeeland > Bloodmoon found, registering related expressions...");
+				/**
+				 * BloodMoon Events & Expressions; I'll do this l8r
+				 */
+				Skript.registerEvent("Bloodmoon Start Event", SimpleEvent.class, BloodMoonStartEvent.class, "bloodmoon (start|commence)");
+				Skript.registerEvent("Bloodmoon End Event", SimpleEvent.class, BloodMoonEndEvent.class, "bloodmoon (end|finish)");
+				EventValues.registerEventValue(BloodMoonStartEvent.class, World.class, new Getter<World, BloodMoonStartEvent>() {
+					
+					public World get(BloodMoonStartEvent e) {
+						
+						return e.getWorld();
+					}
+				}, 0);
+				EventValues.registerEventValue(BloodMoonEndEvent.class, World.class, new Getter<World, BloodMoonEndEvent>() {
+					
+					public World get(BloodMoonEndEvent e) {
+						
+						return e.getWorld();
+					}
+				}, 0);
+				evtAmount += 2;
+			} else {
+				getLogger().info("sKeeland > Unable to find BloodMoon!");
 			}
 			if (Bukkit.getServer().getPluginManager().getPlugin("GriefPrevention") != null) {
 				Bukkit.getLogger().info("sKeeland > GriefPrevention found, registering related expressions...");
 				/**
-				 * GriefPrevention Expressions
+				 * GriefPrevention Events & Expressions
 				 */
+				Skript.registerEvent("Claim Delete Event", SimpleEvent.class, ClaimDeletedEvent.class, "claim delet(e|ing)[d]");
+				EventValues.registerEventValue(ClaimDeletedEvent.class, String.class, new Getter<String, ClaimDeletedEvent>() {
+					
+					public String get(ClaimDeletedEvent e) {
+						
+						return e.getClaim().toString();
+					}
+				}, 0);
+				EventValues.registerEventValue(ClaimDeletedEvent.class, Player.class, new Getter<Player, ClaimDeletedEvent>() {
+					
+					public Player get(ClaimDeletedEvent e) {
+						
+						return Bukkit.getPlayer(e.getClaim().getOwnerName());
+					}
+				}, 0);
+				evtAmount += 1;
 				Skript.registerExpression(ExprClaimAtPlayer.class, Claim.class, ExpressionType.PROPERTY, "claim at player %player%");
 				Skript.registerExpression(ExprClaimAtLocation.class, Claim.class, ExpressionType.PROPERTY, "claim at %location%");
-				Skript.registerExpression(ExprOwnerOfClaim.class, String.class, ExpressionType.PROPERTY, "owner of [claim] %claim%");
+				Skript.registerExpression(ExprOwnerOfClaim.class, String.class, ExpressionType.PROPERTY, "owner of [claim] %string%");
 				Skript.registerExpression(ExprRemainingClaimBlocks.class, Integer.class, ExpressionType.PROPERTY, "remaining [claim] block[[']s] of [player] %player%");
 				Skript.registerExpression(ExprBonusClaimBlocks.class, Integer.class, ExpressionType.PROPERTY, "bonus [claim] block[[']s] of [player] %player%");
 				exprAmount += 5;
 				
 			} else {
 				getLogger().info("sKeeland > Unable to find GriefPrevention!");
-			} // settable
+			}
 			
 			if (Bukkit.getServer().getPluginManager().getPlugin("NexGenKoTHs") != null) {
 		    	Bukkit.getLogger().info("sKeeland > NexGenKoTHs found, registering related expressions...");
@@ -268,6 +316,8 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerEvent("Koth Player Start Capture", SimpleEvent.class, PlayerStartCaptureKothEvent.class, "player start capture koth [event]","start koth capture by player [event]");
 		    	Skript.registerEvent("Koth Player Stop Capture", SimpleEvent.class, PlayerStopCaptureKothEvent.class, "player stop[ped] capture koth [event]","stop[ped] koth capture by player [event]");
 		    	Skript.registerEvent("Player Capture Koth", SimpleEvent.class, PlayerCaptureKothEvent.class, "player capture koth");
+		    	Skript.registerEvent("Player Enter Koth Event", SimpleEvent.class, PlayerEnterKothEvent.class, "[player] enter koth", "koth enter");
+		    	Skript.registerEvent("Player Exit Koth Event", SimpleEvent.class, PlayerExitKothEvent.class, "[player] exit koth", "koth exit", "koth leav(e|ing)", "leav(e|ing) koth");
 		    	EventValues.registerEventValue(PlayerStartCaptureKothEvent.class, String.class, new Getter<String, PlayerStartCaptureKothEvent>() {
 		    		
 		    		public String get(PlayerStartCaptureKothEvent e) {
@@ -310,7 +360,35 @@ public class Main extends JavaPlugin implements Listener{
 		    			return e.getPlayer();
 		    		}
 		    	}, 0);
-		    	evtAmount += 3;
+		    	EventValues.registerEventValue(PlayerEnterKothEvent.class, String.class, new Getter<String, PlayerEnterKothEvent>() {
+		    		
+		    		public String get(PlayerEnterKothEvent e) {
+		    			
+		    			return e.getKoth().toString();
+		    		}
+		    	}, 0);
+		    	EventValues.registerEventValue(PlayerEnterKothEvent.class, Player.class, new Getter<Player, PlayerEnterKothEvent>() {
+		    		
+		    		public Player get(PlayerEnterKothEvent e) {
+		    			
+		    			return e.getPlayer();
+		    		}
+		    	}, 0);
+		    	EventValues.registerEventValue(PlayerExitKothEvent.class, String.class, new Getter<String, PlayerExitKothEvent>() {
+		    		
+		    		public String get(PlayerExitKothEvent e) {
+		    			
+		    			return e.getKoth().toString();
+		    		}
+		    	}, 0);
+		    	EventValues.registerEventValue(PlayerExitKothEvent.class, Player.class, new Getter<Player, PlayerExitKothEvent>() {
+		    		
+		    		public Player get(PlayerExitKothEvent e) {
+		    			
+		    			return e.getPlayer();
+		    		}
+		    	}, 0);
+		    	evtAmount += 5;
 		    	Skript.registerExpression(ExprRemainingTime.class, String.class, ExpressionType.PROPERTY, "[koth] [get] remaining [capture] time of [koth] %string%");
 		    	Skript.registerExpression(ExprCappingPlayerOfKoth.class, Player.class, ExpressionType.PROPERTY, "[koth] [get] (capping|capturing) player of [koth] %string%");
 		    	exprAmount += 2;

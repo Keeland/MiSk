@@ -3,17 +3,17 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/Spigot/Spigot-API/target/spigot-api-1.8.8-R0.1-SNAPSHOT-shaded.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/Skript 2.2 Fixes V8b.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/Towny_Advanced/Towny.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/GriefPrevention.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/CraftBukkit/target/craftbukkit-1.8.8-R0.1-SNAPSHOT-remapped.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/minecraft_server.1.8.7.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/work/minecraft_server.1.8.8.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/askyblock.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/WorldBorder(1).jar"/>
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/NexGenKoTHs.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/uSkyBlock.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/ProtocolLib (3).jar"/>
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/BloodMoon(2).jar"/>
+	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/askyblock(1).jar"/>
+	<classpathentry kind="lib" path="C:/Users/Keelans/Desktop/Spigot Server/plugins/Skript 2.2 Fixes V8b.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/uSkyBlock(1).jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

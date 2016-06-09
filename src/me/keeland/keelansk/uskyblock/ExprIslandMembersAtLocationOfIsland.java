@@ -6,18 +6,23 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import us.talabrek.ultimateskyblock.uSkyBlock;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Nullable;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 
-public class ExprIslandMembersAtLocationOfIsland extends SimpleExpression<String>{
+public class ExprIslandMembersAtLocationOfIsland extends SimpleExpression<Player>{
 
     private Expression<Location> location;
 
-    public Class<? extends String> getReturnType() {
+    public Class<? extends Player> getReturnType() {
 
-        return String.class;
+        return Player.class;
     }
 
     @Override
@@ -39,11 +44,13 @@ public class ExprIslandMembersAtLocationOfIsland extends SimpleExpression<String
 
     @Override
     @Nullable
-    protected String[] get(Event arg0) {
-        Location loc = this.location.getSingle(arg0);
-        String r = null;
-        r = uSkyBlock.getAPI().getIslandRank(loc).getMembers().toString();
-
-        return new String[] { r };
+    protected Player[] get(Event arg0) {
+    	Location locat = this.location.getSingle(arg0);
+		List<Player> players = new ArrayList<Player>();
+    	// List<String> r = uSkyBlock.getAPI().getIslandRank(owner).getMembers();
+    	for (String playersinstring : uSkyBlock.getAPI().getIslandRank(locat).getMembers()) {
+    		players.add(Bukkit.getPlayer(playersinstring));
+    	}
+        return (Player[])players.toArray(new Player[players.size()]);
     }
 }

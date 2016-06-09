@@ -48,6 +48,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
+import me.keeland.keelansk.askyblock.EffCalculateIslandLevelOfPlayer;
 import me.keeland.keelansk.askyblock.EffSetIslandBiome;
 import me.keeland.keelansk.askyblock.ExprGetSpawnLocation;
 import me.keeland.keelansk.askyblock.ExprGetSpawnRange;
@@ -60,6 +61,7 @@ import me.keeland.keelansk.askyblock.ExprNetherWorld;
 import me.keeland.keelansk.askyblock.ExprOwnerOfIsland;
 import me.keeland.keelansk.askyblock.ExprTeamLeaderFromPlayer;
 import me.keeland.keelansk.askyblock.ExprTeamMembersFromPlayer;
+import me.keeland.keelansk.griefprevention.ExprAccruedClaimBlocks;
 import me.keeland.keelansk.griefprevention.ExprBonusClaimBlocks;
 import me.keeland.keelansk.griefprevention.ExprClaimAtLocation;
 import me.keeland.keelansk.griefprevention.ExprClaimAtPlayer;
@@ -233,14 +235,14 @@ public class Main extends JavaPlugin implements Listener{
 			Skript.registerExpression(ExprViewDistance.class, Integer.class, ExpressionType.SIMPLE, "view distance");
 			Skript.registerExpression(ExprWaterAnimalSpawnLimit.class, Integer.class, ExpressionType.SIMPLE, "water animal spawn[s] limit");
 			exprAmount += 29;
-			if (v.equals("v1_8.")) {
+			if (v.contains("v1_8")) {
 				
 				if (Bukkit.getServer().getPluginManager().getPlugin("ProtocolLib") != null) {
 					Bukkit.getLogger().info("sKeeland > ProtocolLib found, registering related expressions...");
 					/**
 					 * Protocollib required expressions/effects
 					 */
-					Skript.registerExpression(ExprEnchPreviewAbilityOfPlayer.class, Boolean.class, ExpressionType.PROPERTY, "ench[ant[ing]] preview (ability|state)");
+					Skript.registerExpression(ExprEnchPreviewAbilityOfPlayer.class, Boolean.class, ExpressionType.PROPERTY, "ench[ant[ing]] preview (ability|state) of %player%");
 					exprAmount += 1;
 					
 				} else {
@@ -248,9 +250,10 @@ public class Main extends JavaPlugin implements Listener{
 				}
 				
 			} else {
+				
 				getLogger().info("sKeeland > Skipping 1.8 dependent stuff");
+				
 			}
-			
 			if (Bukkit.getServer().getPluginManager().getPlugin("BloodMoon") != null) {
 				Bukkit.getLogger().info("sKeeland > Bloodmoon found, registering related expressions...");
 				/**
@@ -297,12 +300,13 @@ public class Main extends JavaPlugin implements Listener{
 					}
 				}, 0);
 				evtAmount += 1;
+				Skript.registerExpression(ExprAccruedClaimBlocks.class, Integer.class, ExpressionType.PROPERTY, "[remaining] accrued [claim] block[[']s] of %player%");
 				Skript.registerExpression(ExprClaimAtPlayer.class, Claim.class, ExpressionType.PROPERTY, "claim at player %player%");
 				Skript.registerExpression(ExprClaimAtLocation.class, Claim.class, ExpressionType.PROPERTY, "claim at %location%");
 				Skript.registerExpression(ExprOwnerOfClaim.class, String.class, ExpressionType.PROPERTY, "owner of [claim] %string%");
 				Skript.registerExpression(ExprRemainingClaimBlocks.class, Integer.class, ExpressionType.PROPERTY, "remaining [claim] block[[']s] of [player] %player%");
 				Skript.registerExpression(ExprBonusClaimBlocks.class, Integer.class, ExpressionType.PROPERTY, "bonus [claim] block[[']s] of [player] %player%");
-				exprAmount += 5;
+				exprAmount += 6;
 				
 			} else {
 				getLogger().info("sKeeland > Unable to find GriefPrevention!");
@@ -534,7 +538,7 @@ public class Main extends JavaPlugin implements Listener{
 						
 					}
 				}, 0);
-		    	
+		    	evtAmount += 10;
 		    	Skript.registerEffect(EffBackupTownyData.class, new String[] { "backup towny [data]" });
 		    	Skript.registerEffect(EffEndWarEvent.class, new String[] { "end war[[ ]event]" });
 		    	Skript.registerEffect(EffStartWarEvent.class, new String[] { "start war[[ ]event]" });
@@ -612,8 +616,8 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerExpression(ExprIslandRankOfPlayer.class, Integer.class, ExpressionType.PROPERTY, "[u[skyblock]] island rank of %player%");
 		    	Skript.registerExpression(ExprIslandLevelOfPlayer.class, Double.class, ExpressionType.PROPERTY, "[u[skyblock]] island level of %player%");
 		    	Skript.registerExpression(ExprIslandRankAtLocation.class, Integer.class, ExpressionType.PROPERTY, "[u[skyblock]] island rank at %location%");
-		    	Skript.registerExpression(ExprIslandMembersOfPlayersIsland.class, String.class, ExpressionType.PROPERTY, "[u[skyblock]] member[[']s] of %player%[[']s] island");
-		    	Skript.registerExpression(ExprIslandMembersAtLocationOfIsland.class, String.class, ExpressionType.PROPERTY, "[u[skyblock]] member[[']s] of island at %location%");
+		    	Skript.registerExpression(ExprIslandMembersOfPlayersIsland.class, Player.class, ExpressionType.PROPERTY, "[u[skyblock]] member[[']s] of %player%[[']s] island");
+		    	Skript.registerExpression(ExprIslandMembersAtLocationOfIsland.class, Player.class, ExpressionType.PROPERTY, "[u[skyblock]] member[[']s] of island at %location%");
 		    	exprAmount += 5;
 		    	
 		    } else {
@@ -686,26 +690,26 @@ public class Main extends JavaPlugin implements Listener{
 						return entereventplayer;
 					}
 				}, 0);
-		    	EventValues.registerEventValue(IslandEnterEvent.class, Location.class, new Getter <Location, IslandEnterEvent>() {
-		    		
-		    		public Location get(IslandEnterEvent e) {
-		    			return e.getIslandLocation();
-		    		}
-		    	}, 0);
+//		    	EventValues.registerEventValue(IslandEnterEvent.class, Location.class, new Getter <Location, IslandEnterEvent>() {
+//		    		
+//		    		public Location get(IslandEnterEvent e) {
+//		    			return e.getIslandLocation();
+//		    		}
+//		    	}, 0);
 		    	EventValues.registerEventValue(IslandEnterEvent.class, Location.class, new Getter <Location, IslandEnterEvent>() {
 		    		
 		    		public Location get(IslandEnterEvent e) {
 		    			return e.getLocation();
 		    		}
 		    	}, 0);
-		    	EventValues.registerEventValue(IslandEnterEvent.class, Player.class, new Getter<Player, IslandEnterEvent>() {
-					
-					public Player get(IslandEnterEvent e) {
-						
-						Player enterownerplayer = Bukkit.getPlayer(e.getIslandOwner());
-						return enterownerplayer;
-					}
-				}, 0);
+//		    	EventValues.registerEventValue(IslandEnterEvent.class, Player.class, new Getter<Player, IslandEnterEvent>() {
+//					
+//					public Player get(IslandEnterEvent e) {
+//						
+//						Player enterownerplayer = Bukkit.getPlayer(e.getIslandOwner());
+//						return enterownerplayer;
+//					}
+//				}, 0);
 		    	EventValues.registerEventValue(IslandExitEvent.class, Player.class, new Getter<Player, IslandExitEvent>() {
 					
 					public Player get(IslandExitEvent e) {
@@ -714,26 +718,26 @@ public class Main extends JavaPlugin implements Listener{
 						return exiteventplayer;
 					}
 				}, 0);
-		    	EventValues.registerEventValue(IslandExitEvent.class, Location.class, new Getter <Location, IslandExitEvent>() {
-		    		
-		    		public Location get(IslandExitEvent e) {
-		    			return e.getIslandLocation();
-		    		}
-		    	}, 0);
+//		    	EventValues.registerEventValue(IslandExitEvent.class, Location.class, new Getter <Location, IslandExitEvent>() {
+//		    		
+//		    		public Location get(IslandExitEvent e) {
+//		    			return e.getIslandLocation();
+//		    		}
+//		    	}, 0);
 		    	EventValues.registerEventValue(IslandExitEvent.class, Location.class, new Getter <Location, IslandExitEvent>() {
 		    		
 		    		public Location get(IslandExitEvent e) {
 		    			return e.getLocation();
 		    		}
 		    	}, 0);
-		    	EventValues.registerEventValue(IslandExitEvent.class, Player.class, new Getter<Player, IslandExitEvent>() {
-					
-					public Player get(IslandExitEvent e) {
-						
-						Player exitownerplayer = Bukkit.getPlayer(e.getIslandOwner());
-						return exitownerplayer;
-					}
-				}, 0);
+//		    	EventValues.registerEventValue(IslandExitEvent.class, Player.class, new Getter<Player, IslandExitEvent>() {
+//					
+//					public Player get(IslandExitEvent e) {
+//						
+//						Player exitownerplayer = Bukkit.getPlayer(e.getIslandOwner());
+//						return exitownerplayer;
+//					}
+//				}, 0);
 		    	EventValues.registerEventValue(IslandJoinEvent.class, Player.class, new Getter<Player, IslandJoinEvent>() {
 					
 					public Player get(IslandJoinEvent e) {
@@ -764,6 +768,12 @@ public class Main extends JavaPlugin implements Listener{
 		    		
 		    		public Location get(IslandLevelEvent e) {
 		    			return e.getIslandLocation();
+		    		}
+		    	}, 0);
+		    	EventValues.registerEventValue(IslandLevelEvent.class, Integer.class, new Getter <Integer, IslandLevelEvent>() {
+		    		
+		    		public Integer get(IslandLevelEvent e) {
+		    			return e.getLevel();
 		    		}
 		    	}, 0);
 		    	EventValues.registerEventValue(IslandLevelEvent.class, Player.class, new Getter<Player, IslandLevelEvent>() {
@@ -803,7 +813,8 @@ public class Main extends JavaPlugin implements Listener{
 		    	 * ASkyblock Effect + Rest of le Expressions
 		    	 */
 		    	Skript.registerEffect(EffSetIslandBiome.class, new String[]{ "set island[[']s] biome at %location% to %biome%" });
-		    	effAmount += 1;
+		    	Skript.registerEffect(EffCalculateIslandLevelOfPlayer.class, new String[] { "calculate island level of %player%" });
+		    	effAmount += 2;
 		    	Skript.registerExpression(ExprGetSpawnLocation.class, Location.class, ExpressionType.SIMPLE, "[(get|askyblock)] spawn location");
 		    	Skript.registerExpression(ExprGetSpawnRange.class, Integer.class, ExpressionType.SIMPLE, "[(get|askyblock)] spawn range");
 		    	Skript.registerExpression(ExprIslandLevel.class, Integer.class, ExpressionType.PROPERTY, "[askyblock] island level of %player%");
@@ -814,7 +825,7 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerExpression(ExprIslandLocationFromPlayer.class, Location.class, ExpressionType.PROPERTY, "[askyblock] %player%[[']s] island location");
 		    	Skript.registerExpression(ExprOwnerOfIsland.class, Player.class, ExpressionType.PROPERTY, "[askyblock] owner of island at %location%");
 		    	Skript.registerExpression(ExprTeamLeaderFromPlayer.class, Player.class, ExpressionType.PROPERTY, "[askyblock] team leader[[']s] from [player] %player%");
-		    	Skript.registerExpression(ExprTeamMembersFromPlayer.class, String.class, ExpressionType.PROPERTY, "[askyblock] team member[[']s] from [player] %player%");
+		    	Skript.registerExpression(ExprTeamMembersFromPlayer.class, Player.class, ExpressionType.PROPERTY, "[askyblock] team member[[']s] from [player] %player%");
 		    	exprAmount += 11;
 		    	
 		    } else {

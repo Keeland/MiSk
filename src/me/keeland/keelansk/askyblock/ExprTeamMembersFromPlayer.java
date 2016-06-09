@@ -5,6 +5,8 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -15,13 +17,13 @@ import org.bukkit.event.Event;
 
 import com.wasteofplastic.askyblock.ASkyBlockAPI;
 
-public class ExprTeamMembersFromPlayer extends SimpleExpression<String>{
+public class ExprTeamMembersFromPlayer extends SimpleExpression<Player>{
 
     private Expression<Player> player;
 
-    public Class<? extends String> getReturnType() {
+    public Class<? extends Player> getReturnType() {
 
-        return String.class;
+        return Player.class;
     }
 
     @Override
@@ -43,17 +45,15 @@ public class ExprTeamMembersFromPlayer extends SimpleExpression<String>{
 
     @Override
     @Nullable
-    protected String[] get(Event arg0) {
+    protected Player[] get(Event arg0) {
+    	
         String p = this.player.getSingle(arg0).getName().toString();
         UUID play = Bukkit.getPlayer(p).getUniqueId();
-        String r = null;
-        	
-        r = ASkyBlockAPI.getInstance().getTeamMembers(play).toString();
-
-        if (r == null){
-            return null;
+        List<Player> players = new ArrayList<Player>();
+        for (UUID playermembers : ASkyBlockAPI.getInstance().getTeamMembers(play)) {
+        	players.add(Bukkit.getPlayer(playermembers));
         }
 
-        return new String[] { r };
+        return (Player[])players.toArray(new Player[players.size()]);
     }
 }

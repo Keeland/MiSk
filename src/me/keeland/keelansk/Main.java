@@ -108,6 +108,7 @@ import me.keeland.keelansk.misc.ExprTotalMemory;
 import me.keeland.keelansk.misc.ExprUptime;
 import me.keeland.keelansk.misc.ExprViewDistance;
 import me.keeland.keelansk.misc.ExprWaterAnimalSpawnLimit;
+import me.keeland.keelansk.protocollib.EffHardcoreHearts;
 import me.keeland.keelansk.protocollib.ExprEnchPreviewAbilityOfPlayer;
 import me.keeland.keelansk.towny.EffAddResidentToTown;
 import me.keeland.keelansk.towny.EffBackupTownyData;
@@ -179,7 +180,7 @@ public class Main extends JavaPlugin implements Listener{
 	private final Logger logger = Bukkit.getServer().getLogger();
 	
 	public static Main plugin;
-	public static String version = "0.6";
+	public static String version = "0.5.10";
 	public static Main instance;
 	public static EnchPacListener encpaclist;
 	
@@ -248,6 +249,8 @@ public class Main extends JavaPlugin implements Listener{
 					/**
 					 * Protocollib required expressions/effects
 					 */
+					Skript.registerEffect(EffHardcoreHearts.class, new String[] { "[set] hardcore heart[[']s] to %boolean%" });
+					effAmount += 1;
 					Skript.registerExpression(ExprEnchPreviewAbilityOfPlayer.class, Boolean.class, ExpressionType.PROPERTY, "ench[ant[ing]] preview (ability|state) of %player%");
 					exprAmount += 1;
 					
@@ -577,7 +580,7 @@ public class Main extends JavaPlugin implements Listener{
 		    	}
 		    	
 		    	Skript.registerExpression(ExprAlliesOfNation.class, Nation.class, ExpressionType.PROPERTY, "all(y|ies) of [nation] %string%");
-		    	Skript.registerExpression(ExprAssistantsOfNation.class, Player.class, ExpressionType.PROPERTY, "assistant[[']s] (of|in) [nation] %string");
+		    	Skript.registerExpression(ExprAssistantsOfNation.class, Player.class, ExpressionType.PROPERTY, "assistant[[']s] (of|in) [nation] %string%");
 		    	Skript.registerExpression(ExprEnemiesOfNation.class, Nation.class, ExpressionType.PROPERTY, "enem(y|ies) of [nation] %string%");
 		    	Skript.registerExpression(ExprFireStateOfTown.class, Boolean.class, ExpressionType.PROPERTY, "fire state of [town] %string%");
 		    	Skript.registerExpression(ExprNationCapital.class, String.class, ExpressionType.PROPERTY, "capital of [nation] %string%");

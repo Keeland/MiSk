@@ -15,11 +15,16 @@ import com.palmergames.bukkit.towny.object.TownyUniverse;
 
 public class EffRenameNation extends Effect {
 	
-    private Expression<Nation> nation;
+    private Expression<String> nation;
     private Expression<String> newName;
 
     protected void execute(Event event) {
-        Nation nation = this.nation.getSingle(event);
+        Nation nation = null;
+		try {
+			nation = TownyUniverse.getDataSource().getNation(this.nation.getSingle(event).toString());
+		} catch (NotRegisteredException e1) {
+			e1.printStackTrace();
+		}
         String newName = this.newName.getSingle(event);
         if (nation == null || newName == null) return;
         	try {
@@ -40,7 +45,7 @@ public class EffRenameNation extends Effect {
 
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
-        this.nation = (Expression<Nation>) expressions[0];
+        this.nation = (Expression<String>) expressions[0];
         this.newName = (Expression<String>) expressions[1];
         return true;
     }

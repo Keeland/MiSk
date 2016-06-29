@@ -128,6 +128,9 @@ import me.keeland.keelansk.towny.EffRenameTown;
 import me.keeland.keelansk.towny.EffSaveTownyData;
 import me.keeland.keelansk.towny.EffSetSetupDelayWar;
 import me.keeland.keelansk.towny.EffStartWarEvent;
+import me.keeland.keelansk.towny.ExprAlliesOfNation;
+import me.keeland.keelansk.towny.ExprAssistantsOfNation;
+import me.keeland.keelansk.towny.ExprEnemiesOfNation;
 import me.keeland.keelansk.towny.ExprFireStateOfTown;
 import me.keeland.keelansk.towny.ExprKingOfNation;
 import me.keeland.keelansk.towny.ExprMayorOfTown;
@@ -152,6 +155,9 @@ import me.keeland.keelansk.towny.ExprTownsInNation;
 import me.keeland.keelansk.towny.ExprTownsInNationCount;
 import me.keeland.keelansk.towny.ExprTownsWithoutNation;
 import me.keeland.keelansk.towny.ExprWarTime;
+import me.keeland.keelansk.towny.inumbaska.ExprRegisteredDateOfPlayer;
+import me.keeland.keelansk.towny.inumbaska.ExprTownBank;
+import me.keeland.keelansk.towny.inumbaska.ExprTownOfPlayer;
 import me.keeland.keelansk.uskyblock.ExprIslandLevelOfPlayer;
 import me.keeland.keelansk.uskyblock.ExprIslandMembersAtLocationOfIsland;
 import me.keeland.keelansk.uskyblock.ExprIslandMembersOfPlayersIsland;
@@ -173,7 +179,7 @@ public class Main extends JavaPlugin implements Listener{
 	private final Logger logger = Bukkit.getServer().getLogger();
 	
 	public static Main plugin;
-	public static String version;
+	public static String version = "0.6";
 	public static Main instance;
 	public static EnchPacListener encpaclist;
 	
@@ -559,6 +565,20 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerEffect(EffSetSetupDelayWar.class, new String[] { "set war [set[up]] delay to %integer%" });
 		    	Skript.registerEffect(EffSaveTownyData.class, new String[] { "save towny [data]" });
 		    	effAmount += 19;
+		    	
+		    	if (Bukkit.getPluginManager().getPlugin("Umbaska") == null) {
+		    		/**
+		    		 * Umbaska not installed, add certain towny expressions
+		    		 */ 
+		    		Skript.registerExpression(ExprRegisteredDateOfPlayer.class, String.class, ExpressionType.PROPERTY, "registered date of %player%");
+		    		Skript.registerExpression(ExprTownBank.class, Double.class, ExpressionType.PROPERTY, "balance of town %string%");
+		    		Skript.registerExpression(ExprTownOfPlayer.class, Town.class, ExpressionType.PROPERTY, "town of %player%");
+		    		exprAmount += 3;
+		    	}
+		    	
+		    	Skript.registerExpression(ExprAlliesOfNation.class, Nation.class, ExpressionType.PROPERTY, "all(y|ies) of [nation] %string%");
+		    	Skript.registerExpression(ExprAssistantsOfNation.class, Player.class, ExpressionType.PROPERTY, "assistant[[']s] (of|in) [nation] %string");
+		    	Skript.registerExpression(ExprEnemiesOfNation.class, Nation.class, ExpressionType.PROPERTY, "enem(y|ies) of [nation] %string%");
 		    	Skript.registerExpression(ExprFireStateOfTown.class, Boolean.class, ExpressionType.PROPERTY, "fire state of [town] %string%");
 		    	Skript.registerExpression(ExprNationCapital.class, String.class, ExpressionType.PROPERTY, "capital of [nation] %string%");
 		    	Skript.registerExpression(ExprKingOfNation.class, Player.class, ExpressionType.PROPERTY, "king of [nation] %string%");
@@ -583,7 +603,7 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerExpression(ExprResidentsWithoutTown.class, String.class, ExpressionType.SIMPLE, "(resident[[']s]|player[[']s]) without [a] town");
 		    	Skript.registerExpression(ExprTownsWithoutNation.class, String.class, ExpressionType.SIMPLE, "town[[']s] without [a] nation");
 		    	Skript.registerExpression(ExprWarTime.class, Boolean.class, ExpressionType.SIMPLE, "war[ ]time");
-		    	exprAmount += 23;
+		    	exprAmount += 26;
 		    	
 			} else {
 				getLogger().info("sKeeland > Unable to find Towny!");
@@ -831,6 +851,7 @@ public class Main extends JavaPlugin implements Listener{
 		    } else {
 		    	getLogger().info("sKeeland > Unable to find ASkyBlock!");
 		    }
+		    
 //		    if (DataUtils.usecilentsideworldborder) {
 //		    	Bukkit.getLogger().info("sKeeland > registering cilentside worldborder effects...");
 //		    	/**

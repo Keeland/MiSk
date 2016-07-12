@@ -1,30 +1,24 @@
-package me.keeland.keelansk.protocollib;
+package me.keeland.keelansk.misc;
 
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 
-public class EffHardcoreHearts extends Effect {
+public class EffMakePlayerSpectateEntity extends Effect {
 	
-	private final HardcoreHeartsListener heart;
-
-    public EffHardcoreHearts(HardcoreHeartsListener heart) {
-        this.heart = heart;
-    }
-	
-    private Expression<Boolean> b;
+    private Expression<Player> player;
+    private Expression<Entity> ent;
 
     protected void execute(Event event) {
-        Boolean boo = this.b.getSingle(event);
-        if (boo == null) return;
-        if (boo = true) {
-        	heart.enable();
-        } else {
-        	heart.disable();
-        }
+    	Player p = this.player.getSingle(event);
+        Entity e = this.ent.getSingle(event);
+        p.setSpectatorTarget(e);
+        return;
     }
 
     public String toString(Event event, boolean bool) {
@@ -33,9 +27,8 @@ public class EffHardcoreHearts extends Effect {
 
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
-        this.b = (Expression<Boolean>) expressions[0];
+        this.player = (Expression<Player>) expressions[0];
+        this.ent = (Expression<Entity>) expressions[1];
         return true;
     }
-    
-    
 }

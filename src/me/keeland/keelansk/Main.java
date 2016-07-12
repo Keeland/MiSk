@@ -6,8 +6,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -48,6 +51,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
+import ch.njol.skript.util.Timespan;
 import me.keeland.keelansk.askyblock.EffCalculateIslandLevelOfPlayer;
 import me.keeland.keelansk.askyblock.EffSetIslandBiome;
 import me.keeland.keelansk.askyblock.ExprGetSpawnLocation;
@@ -70,6 +74,7 @@ import me.keeland.keelansk.griefprevention.ExprRemainingClaimBlocks;
 import me.keeland.keelansk.koth.ExprCappingPlayerOfKoth;
 import me.keeland.keelansk.koth.ExprRemainingTime;
 import me.keeland.keelansk.misc.EffFakeMaxPlayers;
+import me.keeland.keelansk.misc.EffMakePlayerSpectateEntity;
 import me.keeland.keelansk.misc.EffOpenBrewingStand;
 import me.keeland.keelansk.misc.EffReloadServer;
 import me.keeland.keelansk.misc.EffRunGarbageCollector;
@@ -85,9 +90,11 @@ import me.keeland.keelansk.misc.ExprCPUByte;
 import me.keeland.keelansk.misc.ExprCPUCores;
 import me.keeland.keelansk.misc.ExprCPUUsage;
 import me.keeland.keelansk.misc.ExprDefaultGamemode;
+import me.keeland.keelansk.misc.ExprDurationOfPlayersPotionType;
 import me.keeland.keelansk.misc.ExprFreeMemory;
 import me.keeland.keelansk.misc.ExprIdleTimeout;
 import me.keeland.keelansk.misc.ExprKeelanSKVersion;
+import me.keeland.keelansk.misc.ExprKickReason;
 import me.keeland.keelansk.misc.ExprMaxMemory;
 import me.keeland.keelansk.misc.ExprMonsterSpawnLimit;
 import me.keeland.keelansk.misc.ExprNumberOfAllLoadedChunks;
@@ -97,18 +104,21 @@ import me.keeland.keelansk.misc.ExprOSUsername;
 import me.keeland.keelansk.misc.ExprOnlineMode;
 import me.keeland.keelansk.misc.ExprOperatingSystem;
 import me.keeland.keelansk.misc.ExprPing;
-import me.keeland.keelansk.misc.ExprPrefixOfTeamOfPlayer;
+import me.keeland.keelansk.misc.ExprPlayersSpectateTarget;
+import me.keeland.keelansk.misc.ExprTeamsPrefixFromPlayer;
 import me.keeland.keelansk.misc.ExprServerIP;
 import me.keeland.keelansk.misc.ExprServerPort;
 import me.keeland.keelansk.misc.ExprSpawnRadius;
+import me.keeland.keelansk.misc.ExprTPS;
+import me.keeland.keelansk.misc.ExprTeamsPrefix;
 import me.keeland.keelansk.misc.ExprThreads;
 import me.keeland.keelansk.misc.ExprTicksPerAnimalSpawns;
 import me.keeland.keelansk.misc.ExprTicksPerMonsterSpawns;
+import me.keeland.keelansk.misc.ExprTierOfPlayersPotionType;
 import me.keeland.keelansk.misc.ExprTotalMemory;
 import me.keeland.keelansk.misc.ExprUptime;
 import me.keeland.keelansk.misc.ExprViewDistance;
 import me.keeland.keelansk.misc.ExprWaterAnimalSpawnLimit;
-import me.keeland.keelansk.protocollib.EffHardcoreHearts;
 import me.keeland.keelansk.protocollib.ExprEnchPreviewAbilityOfPlayer;
 import me.keeland.keelansk.towny.EffAddResidentToTown;
 import me.keeland.keelansk.towny.EffBackupTownyData;
@@ -165,7 +175,9 @@ import me.keeland.keelansk.uskyblock.ExprIslandMembersOfPlayersIsland;
 import me.keeland.keelansk.uskyblock.ExprIslandRankAtLocation;
 import me.keeland.keelansk.uskyblock.ExprIslandRankOfPlayer;
 import me.keeland.keelansk.utils.EnchPacListener;
+import me.keeland.keelansk.utils.EvtPlayerLeave;
 import me.keeland.keelansk.utils.ReflectionUtils;
+import me.keeland.keelansk.utils.Timer;
 import me.keeland.keelansk.worldborderpl.ExprXCenterOfrBorder;
 import me.keeland.keelansk.worldborderpl.ExprXRadiusOfrBorder;
 import me.keeland.keelansk.worldborderpl.ExprZCenterOfrBorder;
@@ -183,7 +195,8 @@ public class Main extends JavaPlugin implements Listener{
 	public static String version = "0.5.10";
 	public static Main instance;
 	public static EnchPacListener encpaclist;
-	
+
+	private static Timer timer;
 	private int exprAmount = 0;
 	private int effAmount = 0;
 	private int evtAmount = 0;
@@ -195,19 +208,55 @@ public class Main extends JavaPlugin implements Listener{
 			Skript.registerAddon(this);  
 			Bukkit.getPluginManager().registerEvents(this, this);
 			String v = ReflectionUtils.getVersion();
+			utils();
 		//	saveDefaultConfig();
 			/**
 			 * Register independent classes
 			 */
 			Bukkit.getLogger().info("sKeeland > Enabled, registering independent expressions...");
+			Skript.registerEvent("player leave", SimpleEvent.class, EvtPlayerLeave.class, "player leave [server]");
+			EventValues.registerEventValue(EvtPlayerLeave.class, Player.class, new Getter<Player, EvtPlayerLeave>() {
+				
+				public Player get(EvtPlayerLeave e) {
+					
+					return e.getPlayer();
+				}
+			}, 0);
+			EventValues.registerEventValue(EvtPlayerLeave.class, String.class, new Getter<String, EvtPlayerLeave>() {
+				
+				public String get(EvtPlayerLeave e) {
+					
+					return e.getQuitMessage();
+				}
+			}, 0);
+			Skript.registerEvent("prepare craft", SimpleEvent.class, PrepareItemCraftEvent.class, "prepare [item] craft[ing]");
+			EventValues.registerEventValue(PrepareItemCraftEvent.class, Inventory.class, new Getter<Inventory, PrepareItemCraftEvent>() {
+				
+				public Inventory get(PrepareItemCraftEvent e) {
+					
+					return e.getInventory();
+				}
+			}, 0);
+//			EventValues.registerEventValue(PrepareItemCraftEvent.class, Player.class, new Getter<List<Player>, PrepareItemCraftEvent>() {
+//				
+//				public List<Player> get(PrepareItemCraftEvent e) {
+//					List<Player> players = new ArrayList<Player>();
+//					for (HumanEntity h : e.getViewers()) {
+//						players.add(Bukkit.getPlayer(h.getName().toString()));
+//					}
+//					return players;
+//				}
+//			}, 0);
+			evtAmount += 2;
 			effAmount += 0;
 			Skript.registerEffect(EffStopServer.class, new String[] { "stop server" });
 			Skript.registerEffect(EffRunGarbageCollector.class, new String[] { "run garbage collector" });
+			Skript.registerEffect(EffMakePlayerSpectateEntity.class, new String[] { "make %player% spectate %entity%" });
 			Skript.registerEffect(EffOpenBrewingStand.class, new String[] { "open brewing inventory (for|to) %player%" } );
 			Skript.registerEffect(EffReloadServer.class, new String[] { "reload [server]" });
 			Skript.registerEffect(EffFakeMaxPlayers.class, new String[] { "set fake max players to %number%" });
 			Skript.registerEffect(EffSendResourcePack.class, new String[] { "send (resource|texture)[ ]pack to %player% from [url] %string%" });
-			effAmount += 6;
+			effAmount += 7;
 			Skript.registerExpression(ExprCPUCores.class, Integer.class, ExpressionType.SIMPLE, "[available[ ]]processors");
 			Skript.registerExpression(ExprCPUByte.class, String.class, ExpressionType.SIMPLE, "cpu[[ ]byte]");
 			Skript.registerExpression(ExprOperatingSystem.class, String.class, ExpressionType.SIMPLE, "(os|operating system)");
@@ -215,22 +264,27 @@ public class Main extends JavaPlugin implements Listener{
 			Skript.registerExpression(ExprOSUsername.class, String.class, ExpressionType.SIMPLE, "[os[ ]]username");
 			Skript.registerExpression(ExprThreads.class, Integer.class, ExpressionType.SIMPLE, "[running[ ]]threads");
 			Skript.registerExpression(ExprAllowEnd.class, Boolean.class, ExpressionType.SIMPLE, "allow end");
-			Skript.registerExpression(ExprAllowFlight.class, Boolean.class, ExpressionType.SIMPLE, "allow flight");
+			Skript.registerExpression(ExprAllowFlight.class, Boolean.class, ExpressionType.SIMPLE, "allow flight"); //settable
 			Skript.registerExpression(ExprAllowNether.class, Boolean.class, ExpressionType.SIMPLE, "allow nether");
 			Skript.registerExpression(ExprAmbientSpawnLimit.class, Integer.class, ExpressionType.SIMPLE, "ambient spawn[s] limit");
 			Skript.registerExpression(ExprAnimalSpawnLimit.class, Integer.class, ExpressionType.SIMPLE, "animal spawn[s] limit");
 			Skript.registerExpression(ExprBukkitVersion.class, String.class, ExpressionType.SIMPLE, "bukkit version");
 			Skript.registerExpression(ExprCPUUsage.class, Double.class, ExpressionType.SIMPLE, "cpu usage");
-			Skript.registerExpression(ExprDefaultGamemode.class, GameMode.class, ExpressionType.SIMPLE, "default gamemode"); //set-table
+			Skript.registerExpression(ExprDurationOfPlayersPotionType.class, Timespan.class, ExpressionType.PROPERTY, "duration of %player%[[']s] %potioneffecttype%");
+			Skript.registerExpression(ExprTierOfPlayersPotionType.class, Integer.class, ExpressionType.PROPERTY, "tier of %player%[[']s] %potioneffecttype%");
+			Skript.registerExpression(ExprDefaultGamemode.class, GameMode.class, ExpressionType.SIMPLE, "default gamemode"); //settable
 			Skript.registerExpression(ExprFreeMemory.class, String.class, ExpressionType.SIMPLE, "free memory [in] mb");
-			Skript.registerExpression(ExprIdleTimeout.class, Integer.class, ExpressionType.SIMPLE, "idle timeout"); //set-table
+			Skript.registerExpression(ExprIdleTimeout.class, Integer.class, ExpressionType.SIMPLE, "idle timeout"); //settable
 			Skript.registerExpression(ExprKeelanSKVersion.class, String.class, ExpressionType.SIMPLE, "skeeland version");
+			Skript.registerExpression(ExprKickReason.class, String.class, ExpressionType.SIMPLE, "(kick|quit|leave|left) reason");
 			Skript.registerExpression(ExprMaxMemory.class, String.class, ExpressionType.SIMPLE, "max memory [in] mb");
 			Skript.registerExpression(ExprMonsterSpawnLimit.class, Integer.class, ExpressionType.SIMPLE, "monster spawn[s] limit");
 			Skript.registerExpression(ExprNumberOfAllLoadedChunks.class, Integer.class, ExpressionType.SIMPLE, "number of [all] load[ed] chunks");
 			Skript.registerExpression(ExprNumberOfAllLoadedEntities.class, Integer.class, ExpressionType.SIMPLE, "number of [all] load[ed] entities");
-			Skript.registerExpression(ExprOnlineMode.class, Boolean.class, ExpressionType.SIMPLE, "online mode");
-			Skript.registerExpression(ExprPrefixOfTeamOfPlayer.class, String.class, ExpressionType.PROPERTY, "team prefix of %string%");
+			Skript.registerExpression(ExprOnlineMode.class, Boolean.class, ExpressionType.SIMPLE, "online mode"); //settable
+			Skript.registerExpression(ExprTeamsPrefixFromPlayer.class, String.class, ExpressionType.PROPERTY, "team prefix (of|from) %player%"); //settable
+			Skript.registerExpression(ExprTeamsPrefix.class, String.class, ExpressionType.PROPERTY, "team %string%[[']s] prefix","prefix of team %string%"); //settable
+			Skript.registerExpression(ExprPlayersSpectateTarget.class, Entity.class, ExpressionType.PROPERTY, "spectate target of %player%","%player%[[']s] spectat(e|or|ing) target");
 			Skript.registerExpression(ExprPing.class, Integer.class, ExpressionType.PROPERTY, "cb ping of %player%");
 			Skript.registerExpression(ExprServerIP.class, String.class, ExpressionType.SIMPLE, "[server[ ]]ip");
 			Skript.registerExpression(ExprServerPort.class, Integer.class, ExpressionType.SIMPLE, "[server[ ]]port");
@@ -238,10 +292,11 @@ public class Main extends JavaPlugin implements Listener{
 			Skript.registerExpression(ExprTicksPerAnimalSpawns.class, Integer.class, ExpressionType.SIMPLE, "tick[s] per animal spawn[s]");
 			Skript.registerExpression(ExprTicksPerMonsterSpawns.class, Integer.class, ExpressionType.SIMPLE, "tick[s] per monster spawn[s]");
 			Skript.registerExpression(ExprTotalMemory.class, String.class, ExpressionType.SIMPLE, "total memory [in] mb");
+			Skript.registerExpression(ExprTPS.class, Double.class, ExpressionType.SIMPLE, "[skeeland] tps");
 			Skript.registerExpression(ExprUptime.class, String.class, ExpressionType.SIMPLE, "[server] up[(-| )]time");
 			Skript.registerExpression(ExprViewDistance.class, Integer.class, ExpressionType.SIMPLE, "view distance");
 			Skript.registerExpression(ExprWaterAnimalSpawnLimit.class, Integer.class, ExpressionType.SIMPLE, "water animal spawn[s] limit");
-			exprAmount += 29;
+			exprAmount += 37;
 			if (v.contains("v1_8")) {
 				
 				if (Bukkit.getServer().getPluginManager().getPlugin("ProtocolLib") != null) {
@@ -249,8 +304,6 @@ public class Main extends JavaPlugin implements Listener{
 					/**
 					 * Protocollib required expressions/effects
 					 */
-					Skript.registerEffect(EffHardcoreHearts.class, new String[] { "[set] hardcore heart[[']s] to %boolean%" });
-					effAmount += 1;
 					Skript.registerExpression(ExprEnchPreviewAbilityOfPlayer.class, Boolean.class, ExpressionType.PROPERTY, "ench[ant[ing]] preview (ability|state) of %player%");
 					exprAmount += 1;
 					
@@ -617,7 +670,7 @@ public class Main extends JavaPlugin implements Listener{
 		    	/**
 		    	 * Worldborder Expressions
 		    	 */
-		    	// Skript.registerEvent("WorldBorder Fill Start", SimpleEvent.class, WorldBorderFillStartEvent.class, "worldborder (fill|pregen) start [event]");
+		    	//Skript.registerEvent("WorldBorder Fill Start", SimpleEvent.class, WorldBorderFillStartEvent.class, "worldborder (fill|pregen) start [event]");
 		    	Skript.registerEvent("WorldBorder Fill Finish Event", SimpleEvent.class, WorldBorderFillFinishedEvent.class, "worldborder (fill|pregen) finish [event]");
 		    	Skript.registerEvent("WorldBorder Trim Finish Event", SimpleEvent.class, WorldBorderTrimFinishedEvent.class, "worldborder trim finish [event]");
 		    	evtAmount += 2;
@@ -884,14 +937,21 @@ public class Main extends JavaPlugin implements Listener{
 	    plugin = null;
 	    
 	}
-	
+
     public static Main getInstance() {
         return plugin;
     }
     
+    public static Timer getTimer() {
+        return timer;
+    }
+    
+    private void utils() {
+        timer = new Timer();
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, timer, 1000L, 50L);
+    }
     
     public static String getVersion() {
         return version;
     }
-    
 }

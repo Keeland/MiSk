@@ -33,15 +33,18 @@ public class ExprSpawnRadius extends SimpleExpression<Integer> {
     public boolean init(Expression<?>[] expressions, int i, Kleenean kleenean, SkriptParser.ParseResult parseResult) {
         return true;
     }
-    public void change(Event e, int delta, Changer.ChangeMode mode){
+    
+    @Override
+    public void change(Event e, Object[] delta, Changer.ChangeMode mode){
+    	Integer desc = (Integer) (delta[0]);
 		if (mode == ChangeMode.SET)
-			Bukkit.setSpawnRadius(delta);
+			Bukkit.setSpawnRadius(desc);
 	}
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<?>[] acceptChange(final Changer.ChangeMode mode) {
 		if (mode == ChangeMode.SET)
-			return CollectionUtils.array(String.class);
+			return CollectionUtils.array(Integer.class);
 		return null;
 	}
 }

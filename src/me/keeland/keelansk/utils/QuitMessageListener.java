@@ -17,7 +17,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import me.keeland.keelansk.utils.EvtPlayerLeave;
+
+import me.keeland.keelansk.misc.events.EvtPlayerLeave;
 
 public class QuitMessageListener extends AbstractAppender implements Listener {
     private static final Pattern LOG_PATTERM = Pattern.compile("([a-zA-Z0-9_]{1,16}) lost connection: (.*)");

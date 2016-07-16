@@ -9,6 +9,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -73,52 +74,59 @@ import me.keeland.keelansk.griefprevention.ExprOwnerOfClaim;
 import me.keeland.keelansk.griefprevention.ExprRemainingClaimBlocks;
 import me.keeland.keelansk.koth.ExprCappingPlayerOfKoth;
 import me.keeland.keelansk.koth.ExprRemainingTime;
-import me.keeland.keelansk.misc.EffFakeMaxPlayers;
-import me.keeland.keelansk.misc.EffMakePlayerSpectateEntity;
-import me.keeland.keelansk.misc.EffOpenBrewingStand;
-import me.keeland.keelansk.misc.EffReloadServer;
-import me.keeland.keelansk.misc.EffRunGarbageCollector;
-import me.keeland.keelansk.misc.EffSendResourcePack;
-import me.keeland.keelansk.misc.EffStopServer;
-import me.keeland.keelansk.misc.ExprAllowEnd;
-import me.keeland.keelansk.misc.ExprAllowFlight;
-import me.keeland.keelansk.misc.ExprAllowNether;
-import me.keeland.keelansk.misc.ExprAmbientSpawnLimit;
-import me.keeland.keelansk.misc.ExprAnimalSpawnLimit;
-import me.keeland.keelansk.misc.ExprBukkitVersion;
-import me.keeland.keelansk.misc.ExprCPUByte;
-import me.keeland.keelansk.misc.ExprCPUCores;
-import me.keeland.keelansk.misc.ExprCPUUsage;
-import me.keeland.keelansk.misc.ExprDefaultGamemode;
-import me.keeland.keelansk.misc.ExprDurationOfPlayersPotionType;
-import me.keeland.keelansk.misc.ExprFreeMemory;
-import me.keeland.keelansk.misc.ExprIdleTimeout;
-import me.keeland.keelansk.misc.ExprKeelanSKVersion;
-import me.keeland.keelansk.misc.ExprKickReason;
-import me.keeland.keelansk.misc.ExprMaxMemory;
-import me.keeland.keelansk.misc.ExprMonsterSpawnLimit;
-import me.keeland.keelansk.misc.ExprNumberOfAllLoadedChunks;
-import me.keeland.keelansk.misc.ExprNumberOfAllLoadedEntities;
-import me.keeland.keelansk.misc.ExprOSArchitecture;
-import me.keeland.keelansk.misc.ExprOSUsername;
-import me.keeland.keelansk.misc.ExprOnlineMode;
-import me.keeland.keelansk.misc.ExprOperatingSystem;
-import me.keeland.keelansk.misc.ExprPing;
-import me.keeland.keelansk.misc.ExprPlayersSpectateTarget;
-import me.keeland.keelansk.misc.ExprTeamsPrefixFromPlayer;
-import me.keeland.keelansk.misc.ExprServerIP;
-import me.keeland.keelansk.misc.ExprServerPort;
-import me.keeland.keelansk.misc.ExprSpawnRadius;
-import me.keeland.keelansk.misc.ExprTPS;
-import me.keeland.keelansk.misc.ExprTeamsPrefix;
-import me.keeland.keelansk.misc.ExprThreads;
-import me.keeland.keelansk.misc.ExprTicksPerAnimalSpawns;
-import me.keeland.keelansk.misc.ExprTicksPerMonsterSpawns;
-import me.keeland.keelansk.misc.ExprTierOfPlayersPotionType;
-import me.keeland.keelansk.misc.ExprTotalMemory;
-import me.keeland.keelansk.misc.ExprUptime;
-import me.keeland.keelansk.misc.ExprViewDistance;
-import me.keeland.keelansk.misc.ExprWaterAnimalSpawnLimit;
+import me.keeland.keelansk.misc.effects.EffFakeMaxPlayers;
+import me.keeland.keelansk.misc.effects.EffMakePlayerSpectateEntity;
+import me.keeland.keelansk.misc.effects.EffOpenBrewingStand;
+import me.keeland.keelansk.misc.effects.EffReloadServer;
+import me.keeland.keelansk.misc.effects.EffRunGarbageCollector;
+import me.keeland.keelansk.misc.effects.EffSendResourcePack;
+import me.keeland.keelansk.misc.effects.EffStopServer;
+import me.keeland.keelansk.misc.events.EvtPlayerLeave;
+import me.keeland.keelansk.misc.expressions.ExprAllowEnd;
+import me.keeland.keelansk.misc.expressions.ExprAllowFlight;
+import me.keeland.keelansk.misc.expressions.ExprAllowNether;
+import me.keeland.keelansk.misc.expressions.ExprAmbientSpawnLimit;
+import me.keeland.keelansk.misc.expressions.ExprAnimalSpawnLimit;
+import me.keeland.keelansk.misc.expressions.ExprBukkitVersion;
+import me.keeland.keelansk.misc.expressions.ExprCPUByte;
+import me.keeland.keelansk.misc.expressions.ExprCPUCores;
+import me.keeland.keelansk.misc.expressions.ExprCPUUsage;
+import me.keeland.keelansk.misc.expressions.ExprDefaultGamemode;
+import me.keeland.keelansk.misc.expressions.ExprDurationOfPlayersPotionType;
+import me.keeland.keelansk.misc.expressions.ExprFreeMemory;
+import me.keeland.keelansk.misc.expressions.ExprIdleTimeout;
+import me.keeland.keelansk.misc.expressions.ExprKeelanSKVersion;
+import me.keeland.keelansk.misc.expressions.ExprKickReason;
+import me.keeland.keelansk.misc.expressions.ExprMaxMemory;
+import me.keeland.keelansk.misc.expressions.ExprMonsterSpawnLimit;
+import me.keeland.keelansk.misc.expressions.ExprNumberOfAllLoadedChunks;
+import me.keeland.keelansk.misc.expressions.ExprNumberOfAllLoadedEntities;
+import me.keeland.keelansk.misc.expressions.ExprOSArchitecture;
+import me.keeland.keelansk.misc.expressions.ExprOSUsername;
+import me.keeland.keelansk.misc.expressions.ExprOnlineMode;
+import me.keeland.keelansk.misc.expressions.ExprOperatingSystem;
+import me.keeland.keelansk.misc.expressions.ExprPing;
+import me.keeland.keelansk.misc.expressions.ExprPlayersSpectateTarget;
+import me.keeland.keelansk.misc.expressions.ExprServerIP;
+import me.keeland.keelansk.misc.expressions.ExprServerPort;
+import me.keeland.keelansk.misc.expressions.ExprSpawnRadius;
+import me.keeland.keelansk.misc.expressions.ExprTPS;
+import me.keeland.keelansk.misc.expressions.ExprTeamsPrefix;
+import me.keeland.keelansk.misc.expressions.ExprTeamsPrefixFromPlayer;
+import me.keeland.keelansk.misc.expressions.ExprThreads;
+import me.keeland.keelansk.misc.expressions.ExprTicksPerAnimalSpawns;
+import me.keeland.keelansk.misc.expressions.ExprTicksPerMonsterSpawns;
+import me.keeland.keelansk.misc.expressions.ExprTierOfPlayersPotionType;
+import me.keeland.keelansk.misc.expressions.ExprTotalMemory;
+import me.keeland.keelansk.misc.expressions.ExprUptime;
+import me.keeland.keelansk.misc.expressions.ExprViewDistance;
+import me.keeland.keelansk.misc.expressions.ExprWaterAnimalSpawnLimit;
+import me.keeland.keelansk.misc.expressions.TravelAgent.ExprPortalTravelCanCreate;
+import me.keeland.keelansk.misc.expressions.TravelAgent.ExprPortalTravelCreate;
+import me.keeland.keelansk.misc.expressions.TravelAgent.ExprPortalTravelCreationRadius;
+import me.keeland.keelansk.misc.expressions.TravelAgent.ExprPortalTravelFind;
+import me.keeland.keelansk.misc.expressions.TravelAgent.ExprPortalTravelFindOrCreate;
+import me.keeland.keelansk.misc.expressions.TravelAgent.ExprPortalTravelSearchRadius;
 import me.keeland.keelansk.protocollib.ExprEnchPreviewAbilityOfPlayer;
 import me.keeland.keelansk.towny.EffAddResidentToTown;
 import me.keeland.keelansk.towny.EffBackupTownyData;
@@ -143,6 +151,7 @@ import me.keeland.keelansk.towny.ExprAlliesOfNation;
 import me.keeland.keelansk.towny.ExprAssistantsOfNation;
 import me.keeland.keelansk.towny.ExprEnemiesOfNation;
 import me.keeland.keelansk.towny.ExprFireStateOfTown;
+import me.keeland.keelansk.towny.ExprFriendsOfPlayer;
 import me.keeland.keelansk.towny.ExprKingOfNation;
 import me.keeland.keelansk.towny.ExprMayorOfTown;
 import me.keeland.keelansk.towny.ExprNationAtLocation;
@@ -175,7 +184,6 @@ import me.keeland.keelansk.uskyblock.ExprIslandMembersOfPlayersIsland;
 import me.keeland.keelansk.uskyblock.ExprIslandRankAtLocation;
 import me.keeland.keelansk.uskyblock.ExprIslandRankOfPlayer;
 import me.keeland.keelansk.utils.EnchPacListener;
-import me.keeland.keelansk.utils.EvtPlayerLeave;
 import me.keeland.keelansk.utils.ReflectionUtils;
 import me.keeland.keelansk.utils.Timer;
 import me.keeland.keelansk.worldborderpl.ExprXCenterOfrBorder;
@@ -247,6 +255,28 @@ public class Main extends JavaPlugin implements Listener{
 //					return players;
 //				}
 //			}, 0);
+			Skript.registerEvent("entity portal", SimpleEvent.class, EntityPortalEvent.class, "entity portal");
+			EventValues.registerEventValue(EntityPortalEvent.class, Entity.class, new Getter<Entity, EntityPortalEvent>() {
+				
+				public Entity get(EntityPortalEvent e) {
+					
+					return e.getEntity();
+				}
+			}, 0);
+			EventValues.registerEventValue(EntityPortalEvent.class, Location.class, new Getter<Location, EntityPortalEvent>() {
+				
+				public Location get(EntityPortalEvent e) {
+					
+					return e.getFrom();
+				}
+			}, 0);
+			EventValues.registerEventValue(EntityPortalEvent.class, Location.class, new Getter<Location, EntityPortalEvent>() {
+				
+				public Location get(EntityPortalEvent e) {
+					
+					return e.getTo();
+				}
+			}, 0);
 			evtAmount += 2;
 			effAmount += 0;
 			Skript.registerEffect(EffStopServer.class, new String[] { "stop server" });
@@ -293,10 +323,20 @@ public class Main extends JavaPlugin implements Listener{
 			Skript.registerExpression(ExprTicksPerMonsterSpawns.class, Integer.class, ExpressionType.SIMPLE, "tick[s] per monster spawn[s]");
 			Skript.registerExpression(ExprTotalMemory.class, String.class, ExpressionType.SIMPLE, "total memory [in] mb");
 			Skript.registerExpression(ExprTPS.class, Double.class, ExpressionType.SIMPLE, "[skeeland] tps");
-			Skript.registerExpression(ExprUptime.class, String.class, ExpressionType.SIMPLE, "[server] up[(-| )]time");
+			Skript.registerExpression(ExprUptime.class, Timespan.class, ExpressionType.SIMPLE, "[server] up[(-| )]time");
 			Skript.registerExpression(ExprViewDistance.class, Integer.class, ExpressionType.SIMPLE, "view distance");
 			Skript.registerExpression(ExprWaterAnimalSpawnLimit.class, Integer.class, ExpressionType.SIMPLE, "water animal spawn[s] limit");
 			exprAmount += 37;
+			/**
+			 * TravelAgent Nether Portal things
+			 */
+			Skript.registerExpression(ExprPortalTravelCanCreate.class, Boolean.class, ExpressionType.SIMPLE, "portal travel[agent] can create [(status|ability)]"); //settable
+			Skript.registerExpression(ExprPortalTravelCreationRadius.class, Integer.class, ExpressionType.SIMPLE, "portal travel[agent] creat(ion|e|ed|ing) radi[us]"); //setable
+			Skript.registerExpression(ExprPortalTravelSearchRadius.class, Integer.class, ExpressionType.SIMPLE, "portal travel[agent] search[(ed|ing)] radi[us]");//setable
+			Skript.registerExpression(ExprPortalTravelFind.class, Location.class, ExpressionType.PROPERTY, "portal travel[agent] find [at] %location%");
+			Skript.registerExpression(ExprPortalTravelCreate.class, Boolean.class, ExpressionType.PROPERTY, "portal travel[agent] create [at] %location%");
+			Skript.registerExpression(ExprPortalTravelFindOrCreate.class, Location.class, ExpressionType.PROPERTY, "portal travel[agent] find or create [at] %location%");
+			exprAmount += 6;
 			if (v.contains("v1_8")) {
 				
 				if (Bukkit.getServer().getPluginManager().getPlugin("ProtocolLib") != null) {
@@ -636,9 +676,10 @@ public class Main extends JavaPlugin implements Listener{
 		    	Skript.registerExpression(ExprAssistantsOfNation.class, Player.class, ExpressionType.PROPERTY, "assistant[[']s] (of|in) [nation] %string%");
 		    	Skript.registerExpression(ExprEnemiesOfNation.class, Nation.class, ExpressionType.PROPERTY, "enem(y|ies) of [nation] %string%");
 		    	Skript.registerExpression(ExprFireStateOfTown.class, Boolean.class, ExpressionType.PROPERTY, "fire state of [town] %string%");
+		    	Skript.registerExpression(ExprFriendsOfPlayer.class, Player.class, ExpressionType.PROPERTY, "[towny] friend[[']s] of %player%");
 		    	Skript.registerExpression(ExprNationCapital.class, String.class, ExpressionType.PROPERTY, "capital of [nation] %string%");
 		    	Skript.registerExpression(ExprKingOfNation.class, Player.class, ExpressionType.PROPERTY, "king of [nation] %string%");
-		    	Skript.registerExpression(ExprMayorOfTown.class, Resident.class, ExpressionType.PROPERTY, "mayor of [town] %string%"); //set-table
+		    	Skript.registerExpression(ExprMayorOfTown.class, Resident.class, ExpressionType.PROPERTY, "mayor of [town] %string%"); //settable
 		    	Skript.registerExpression(ExprNationAtLocation.class, Nation.class, ExpressionType.PROPERTY, "nation at %location%");
 		    	Skript.registerExpression(ExprNationOfPlayer.class, Nation.class, ExpressionType.PROPERTY, "nation of %player%");
 		    	Skript.registerExpression(ExprNationOfTown.class, Nation.class, ExpressionType.PROPERTY, "nation of town %string%", "%string%[']s nation");

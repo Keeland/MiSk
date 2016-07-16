@@ -17,5 +17,6 @@
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/uSkyBlock(1).jar"/>
 	<classpathentry kind="lib" path="C:/Users/Keelans/Downloads/Vence/acidisland.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Keelans/Desktop/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Keelans/Documents/Xfer/GuardianBeamAPI-0.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
